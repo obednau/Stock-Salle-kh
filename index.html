@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Salle KH - Sécurisé par Profil</title>
+    <title>Stock Salle KH - Gestion Sécurisée</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -14,7 +14,7 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans">
 
-    <!-- ÉCRAN DE VERROUILLAGE / CHOIX DU PROFIL ET PIN -->
+    <!-- ÉCRAN DE VERROUILLAGE / PIN -->
     <div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
             <div class="w-16 h-16 bg-emerald-600/20 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
@@ -41,13 +41,15 @@
             <p id="lockErrorMsg" class="text-xs text-red-400 hidden"></p>
         </div>
     </div>
+
+    <!-- APPLICATION -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-30 shadow-lg">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 cursor-pointer" onclick="openFolder('OVERVIEW')">
                 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-                    <p class="text-xs text-slate-400">Gestionnaire Sécurisé v1.6</p>
+                    <p class="text-xs text-slate-400">Gestionnaire v1.7</p>
                 </div>
             </div>
             <div class="flex-1 max-w-md w-full flex gap-2">
@@ -79,10 +81,10 @@
             </div>
             <div class="flex flex-wrap gap-2">
                 <button onclick="openInventoryModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
-                    <i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire
+                    <i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire (PDF)
                 </button>
                 <button id="btnAdminProfiles" onclick="openAdminUsersModal()" class="hidden bg-purple-900/40 hover:bg-purple-800/50 border border-purple-700 text-purple-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
-                    <i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs & PIN (Admin)
+                    <i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs & Permissions (Admin)
                 </button>
             </div>
         </div>
@@ -154,18 +156,21 @@
 
     <div id="adminUsersModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-purple-400"></i> Gérer les Utilisateurs & Codes PIN</h3><button onclick="closeAdminUsersModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+            <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs & Permissions</h3><button onclick="closeAdminUsersModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
             <div id="usersListContainer" class="space-y-3"></div>
             <div class="border-t border-slate-800 pt-4 space-y-3">
-                <h4 class="text-sm font-bold text-emerald-400">Ajouter un profil</h4>
+                <h4 class="text-sm font-bold text-emerald-400">Ajouter un profil & définir ses permissions</h4>
                 <div class="space-y-2">
-                    <input type="text" id="newUserName" placeholder="Nom et Prénom" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                    <input type="text" id="newUserName" placeholder="Nom et Prénom (ex: Frère Paul)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
                     <input type="text" id="newUserPin" maxlength="4" placeholder="Code PIN (4 chiffres)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
-                    <select id="newUserRole" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
-                        <option value="comptoir">Assistant (Comptoir / Édition)</option>
-                        <option value="1">Frère Lecteur (Niveau 1)</option>
-                        <option value="3">Administrateur</option>
-                    </select>
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1">Rôle et Niveau de Permission :</label>
+                        <select id="newUserRole" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                            <option value="comptoir">Assistant (Modif stock, scan, ajout)</option>
+                            <option value="1">Frère Lecteur (Consultation seule)</option>
+                            <option value="3">Administrateur (Tous les droits)</option>
+                        </select>
+                    </div>
                     <button onclick="addNewUser()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 rounded-xl text-sm">Créer le profil</button>
                 </div>
             </div>
@@ -176,17 +181,17 @@
     <div id="inventoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire</h3>
+            <p class="text-xs text-slate-400">Téléchargez le rapport officiel de stock au format PDF pour impression ou partage.</p>
             <div class="grid grid-cols-2 gap-3">
-                <div><label class="text-xs text-slate-400 block mb-1">Du :</label><input type="date" value="2026-10-01" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
-                <div><label class="text-xs text-slate-400 block mb-1">Au :</label><input type="date" value="2026-10-27" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
+                <div><label class="text-xs text-slate-400 block mb-1">Du :</label><input type="date" id="invDateStart" value="2026-10-01" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
+                <div><label class="text-xs text-slate-400 block mb-1">Au :</label><input type="date" id="invDateEnd" value="2026-10-27" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 pt-2">
                 <button onclick="closeInventoryModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
-                <button onclick="alert('Inventaire PDF téléchargé !')" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-medium"><i class="fa-solid fa-download"></i> Télécharger PDF</button>
+                <button onclick="generateInventoryPDF()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-sm font-medium"><i class="fa-solid fa-download"></i> Télécharger PDF</button>
             </div>
         </div>
     </div>
-
     <script>
         let appUsers = [
             { id: 'u1', name: 'Administrateur Principal', role: '3', pin: '0000' },
@@ -219,7 +224,7 @@
         function init() { populateLockScreenUsers(); }
         function populateLockScreenUsers() {
             const select = document.getElementById('lockUserSelect');
-            select.innerHTML = appUsers.map(u => `<option value="${u.id}">${u.name} [${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur' : 'Assistant'}]</option>`).join('');
+            select.innerHTML = appUsers.map(u => `<option value="${u.id}">${u.name} [${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur (Consultation)' : 'Assistant (Modif/Scan)'}]</option>`).join('');
         }
 
         function attemptLogin() {
@@ -267,7 +272,11 @@
                 results.forEach(p => {
                     html += `<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center gap-4">
                         <div class="flex-1"><span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Catégorie : ${p.folder}</span><h4 class="font-bold text-white mt-1">${p.title}</h4></div>
-                        <div class="flex items-center gap-3"><button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button><div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl cursor-pointer border border-slate-800 text-center"><span class="neon-qty text-xl">${p.qty}</span></div><button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button></div>
+                        <div class="flex items-center gap-3">
+                            ${user.role !== '1' ? `<button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button>` : ''}
+                            <div onclick="${user.role !== '1' ? `openQtyModal('${p.id}')` : ''}" class="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-center"><span class="neon-qty text-xl">${p.qty}</span></div>
+                            ${user.role !== '1' ? `<button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button>` : ''}
+                        </div>
                     </div>`;
                 });
                 html += `</div></div>`;
@@ -308,10 +317,15 @@
             list.forEach(p => {
                 html += `<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center gap-4">
                     <div class="flex-1">
-                        <div class="flex items-center gap-2"><span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">S-28: ${p.s28}</span><button onclick="openCodeModal('${p.id}')" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"><i class="fa-solid fa-barcode text-emerald-400"></i> ${p.code ? p.code : '+ Code'}</button></div>
+                        <div class="flex items-center gap-2"><span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">S-28: ${p.s28}</span>
+                        ${canEdit ? `<button onclick="openCodeModal('${p.id}')" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"><i class="fa-solid fa-barcode text-emerald-400"></i> ${p.code ? p.code : '+ Code'}</button>` : ''}</div>
                         <h4 class="font-bold text-white mt-1">${p.title}</h4>
                     </div>
-                    <div class="flex items-center gap-3"><button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button><div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl cursor-pointer border border-slate-800 text-center"><span class="neon-qty text-xl">${p.qty}</span></div><button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button></div>
+                    <div class="flex items-center gap-3">
+                        ${canEdit ? `<button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button>` : ''}
+                        <div onclick="${canEdit ? `openQtyModal('${p.id}')` : ''}" class="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-center"><span class="neon-qty text-xl">${p.qty}</span></div>
+                        ${canEdit ? `<button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button>` : ''}
+                    </div>
                 </div>`;
             });
             html += `</div></div>`;
@@ -354,7 +368,7 @@
         function renderAdminUsersList() {
             document.getElementById('usersListContainer').innerHTML = appUsers.map(u => `
                 <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center">
-                    <div><h4 class="font-bold text-white text-sm">${u.name}</h4><span class="text-xs text-purple-400">PIN: ${u.pin} | ${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur' : 'Assistant'}</span></div>
+                    <div><h4 class="font-bold text-white text-sm">${u.name}</h4><span class="text-xs text-purple-400">PIN: ${u.pin} | Rôle: ${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur (Lecture seule)' : 'Assistant (Modif/Scan)'}</span></div>
                     ${u.id !== 'u1' ? `<button onclick="deleteUser('${u.id}')" class="text-red-400 text-xs px-2 py-1 bg-red-950/40 rounded border border-red-900"><i class="fa-solid fa-trash"></i> Retirer</button>` : '<span class="text-[10px] text-slate-500">Principal</span>'}
                 </div>
             `).join('');
@@ -363,7 +377,7 @@
             const name = document.getElementById('newUserName').value.trim();
             const pin = document.getElementById('newUserPin').value.trim();
             const role = document.getElementById('newUserRole').value;
-            if(!name || pin.length !== 4) { alert("Nom et PIN 4 chiffres obligatoires."); return; }
+            if(!name || pin.length !== 4) { alert("Nom et PIN à 4 chiffres obligatoires."); return; }
             appUsers.push({ id: 'u-' + Date.now(), name: name, role: role, pin: pin });
             document.getElementById('newUserName').value = ''; document.getElementById('newUserPin').value = '';
             populateLockScreenUsers(); renderAdminUsersList();
@@ -380,6 +394,52 @@
 
         function openInventoryModal() { document.getElementById('inventoryModal').classList.remove('hidden'); }
         function closeInventoryModal() { document.getElementById('inventoryModal').classList.add('hidden'); }
+
+        function generateInventoryPDF() {
+            const start = document.getElementById('invDateStart').value;
+            const end = document.getElementById('invDateEnd').value;
+            
+            let printWindow = window.open('', '_blank');
+            let htmlContent = `
+                <html>
+                <head>
+                    <title>Bilan Inventaire - Stock Salle KH</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #000; }
+                        h2 { text-align: center; color: #1e293b; }
+                        .meta { text-align: center; margin-bottom: 20px; font-size: 12px; color: #64748b; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                        th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; font-size: 14px; }
+                        th { background-color: #f1f5f9; }
+                        .total { text-align: right; margin-top: 20px; font-weight: bold; font-size: 16px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>SALLE DU ROYAUME - BILAN D'INVENTAIRE</h2>
+                    <div class="meta">Période du ${start} au ${end}</div>
+                    <table>
+                        <tr><th>Catégorie</th><th>Code S-28</th><th>Titre de la Publication</th><th>Quantité</th></tr>
+            `;
+
+            let totalQty = 0;
+            publications.forEach(p => {
+                totalQty += p.qty;
+                htmlContent += `<tr><td>${p.folder}</td><td>${p.s28}</td><td>${p.title}</td><td><b>${p.qty}</b></td></tr>`;
+            });
+
+            htmlContent += `
+                    </table>
+                    <div class="total">Total général en stock : ${totalQty} articles</div>
+                    <script>
+                        window.onload = function() { window.print(); }
+                    <\/script>
+                </body>
+                </html>
+            `;
+            printWindow.document.write(htmlContent);
+            printWindow.document.close();
+            closeInventoryModal();
+        }
 
         window.onload = init;
     </script>
