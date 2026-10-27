@@ -11,14 +11,14 @@
 .neon-qty { color: #39FF14; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); font-weight: 900; }
 body { background-color: #0f172a; color: #f8fafc; }
 select option { background-color: #1e293b; color: #f8fafc; }
-/* Cacher toutes les modales par défaut */
+/* Masquer toutes les modales et l'écran de verrouillage par défaut */
 .modal { display: none !important; }
 .modal.flex { display: flex !important; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
-<!-- Écran de verrouillage (visible au démarrage) -->
-<div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+<!-- Écran de verrouillage masqué par défaut grâce à la classe modal -->
+<div id="lockScreen" class="modal fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
 <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
 <div class="w-16 h-16 bg-emerald-600/25 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
 <i class="fa-solid fa-lock"></i>
@@ -50,7 +50,7 @@ Se connecter
 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
 <div>
 <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v1.9.5</p>
+<p class="text-xs text-slate-400">Gestionnaire v1.9.6</p>
 </div>
 </div>
 <div class="flex-1 max-w-md w-full flex gap-2">
@@ -91,7 +91,7 @@ Se connecter
 </div>
 <div id="mainContent"></div>
 </main>
-<!-- Modales (Toutes dotées de la classe "modal" pour rester masquées par défaut) -->
+<!-- Modales -->
 <div id="qtyModal" class="modal fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50">
 <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
 <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-emerald-400"></i> Saisir la quantité exacte</h3>
@@ -234,6 +234,8 @@ let targetFieldForScan = null;
 function init() {
 saveData();
 populateLockScreenUsers();
+// Afficher explicitement l'écran de verrouillage au démarrage
+document.getElementById('lockScreen').classList.add('flex');
 }
 function populateLockScreenUsers() {
 const select = document.getElementById('lockUserSelect');
@@ -248,7 +250,7 @@ if (user && user.pin === enteredPin) {
 activeUserId = user.id;
 document.getElementById('lockPinInput').value = '';
 errorMsg.classList.add('hidden');
-document.getElementById('lockScreen').style.display = 'none';
+document.getElementById('lockScreen').classList.remove('flex');
 document.getElementById('currentUserNameDisplay').innerText = user.name;
 document.getElementById('currentUserRoleDisplay').innerText = Niveau ${user.role} (${user.role == 4 ? 'Admin' : user.role == 3 ? 'Gestionnaire' : user.role == 2 ? 'Inventaire' : 'Opérateur'});
 renderContent();
@@ -261,7 +263,7 @@ function logout() {
 activeUserId = null;
 document.getElementById('lockPinInput').value = '';
 populateLockScreenUsers();
-document.getElementById('lockScreen').style.display = 'flex';
+document.getElementById('lockScreen').classList.add('flex');
 }
 function getUser() { return appUsers.find(u => u.id === activeUserId) || appUsers[0]; }
 function renderContent() {
