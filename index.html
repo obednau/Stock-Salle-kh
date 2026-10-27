@@ -1,212 +1,179 @@
-<!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stock Salle KH - Gestion Sécurisée</title>
+<title>Stock Salle KH</title>
 <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
 <script src="[https://unpkg.com/html5-qrcode](https://unpkg.com/html5-qrcode)" type="text/javascript"></script>
 <style>
+body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }
 .neon-qty { color: #39FF14; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); font-weight: 900; }
-body { background-color: #0f172a; color: #f8fafc; }
-select option { background-color: #1e293b; color: #f8fafc; }
 #lockScreen {
 position: fixed;
-inset: 0;
+top: 0; left: 0; width: 100%; height: 100%;
 background-color: #020617;
 z-index: 99999;
 display: flex;
 align-items: center;
 justify-content: center;
-padding: 1rem;
+padding: 20px;
 }
 </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans">
-<!-- Écran de verrouillage avec options en dur pour garantir l'affichage -->
+<body class="min-h-screen flex flex-col">
+<!-- Écran de verrouillage simplifié et garanti sans bug -->
 <div id="lockScreen">
-<div style="background-color: #1e293b; border: 1px solid #334155;" class="rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
-<div class="w-16 h-16 bg-emerald-600/25 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
-<i class="fa-solid fa-lock"></i>
-</div>
-<div>
-<h2 class="text-xl font-bold text-white">Stock Salle KH</h2>
-<p class="text-xs text-slate-400 mt-1">Sélectionnez votre profil et entrez votre code PIN</p>
-</div>
-<div class="space-y-4 text-left">
-<div>
-<label class="text-xs text-slate-400 block mb-1">Votre Profil :</label>
-<select id="lockUserSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer">
+<div style="background: #1e293b; border: 1px solid #334155; padding: 24px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center;">
+<div style="font-size: 32px; color: #34d399; margin-bottom: 12px;"><i class="fa-solid fa-lock"></i></div>
+<h2 style="font-size: 20px; font-weight: bold; color: white; margin-bottom: 4px;">Stock Salle KH</h2>
+<p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Sélectionnez votre profil et entrez votre code PIN</p>
+<div style="text-align: left; margin-bottom: 12px;">
+<label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Votre Profil :</label>
+<select id="lockUserSelect" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
 <option value="u1">Administrateur Principal [Niveau 4]</option>
 <option value="u2">Frère Gestionnaire [Niveau 3]</option>
 <option value="u3">Frère Inventaire [Niveau 2]</option>
 <option value="u4">Frère Assistant [Niveau 1]</option>
 </select>
 </div>
-<div>
-<label class="text-xs text-slate-400 block mb-1">Code PIN (4 chiffres) :</label>
-<input type="password" id="lockPinInput" maxlength="4" placeholder="••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-center text-2xl tracking-widest text-emerald-400 focus:outline-none focus:border-emerald-500">
+<div style="text-align: left; margin-bottom: 16px;">
+<label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Code PIN (4 chiffres) :</label>
+<input type="password" id="lockPinInput" maxlength="4" placeholder="••••" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: #34d399; padding: 10px; border-radius: 8px; text-align: center; font-size: 20px; letter-spacing: 4px;">
 </div>
-<button onclick="attemptLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl text-sm transition shadow-lg">
+<button onclick="attemptLogin()" style="width: 100%; background: #059669; color: white; font-weight: bold; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px;">
 Se connecter
 </button>
-</div>
-<p id="lockErrorMsg" class="text-xs text-red-400 hidden"></p>
+<p id="lockErrorMsg" style="font-size: 12px; color: #f87171; margin-top: 10px; display: none;"></p>
 </div>
 </div>
 <!-- En-tête -->
-<header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-30 shadow-lg">
-<div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-<div class="flex items-center gap-3 cursor-pointer" onclick="openFolder('OVERVIEW')">
-<div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
+<header style="background: #1e293b; border-bottom: 1px solid #334155; padding: 12px 16px;">
+<div style="max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+<div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="openFolder('OVERVIEW')">
+<div style="background: #059669; padding: 8px; border-radius: 8px; color: white;"><i class="fa-solid fa-boxes-stacked"></i></div>
 <div>
-<h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v2.0.2</p>
+<h1 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Stock Salle KH</h1>
+<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.1.0</p>
 </div>
 </div>
-<div class="flex-1 max-w-md w-full flex gap-2">
-<div class="relative flex-1">
-<i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400"></i>
-<input type="text" id="searchInput" oninput="renderContent()" placeholder="Rechercher titre, code S-28 ou code-barres..." class="w-full pl-9 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-sm focus:outline-none focus:border-emerald-500 text-white placeholder-slate-500">
+<div style="flex: 1; max-width: 300px; display: flex; gap: 6px;">
+<input type="text" id="searchInput" oninput="renderContent()" placeholder="Rechercher titre, S-28..." style="flex: 1; background: #0f172a; border: 1px solid #475569; color: white; padding: 6px 10px; border-radius: 8px; font-size: 13px;">
+<button onclick="openScanner()" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer;"><i class="fa-solid fa-qrcode"></i></button>
 </div>
-<button onclick="openScanner()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-sm flex items-center gap-2 font-medium">
-<i class="fa-solid fa-qrcode"></i><span>Scanner</span>
-</button>
+<div style="display: flex; align-items: center; gap: 8px; background: #0f172a; padding: 6px 10px; border-radius: 8px; border: 1px solid #334155;">
+<div style="text-align: right;">
+<span id="currentUserNameDisplay" style="font-size: 11px; font-weight: bold; display: block; color: white;"></span>
+<span id="currentUserRoleDisplay" style="font-size: 9px; color: #34d399; display: block;"></span>
 </div>
-<div class="flex items-center gap-3 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
-<div class="text-right px-2">
-<span id="currentUserNameDisplay" class="text-xs font-bold text-white block"></span>
-<span id="currentUserRoleDisplay" class="text-[10px] text-emerald-400 block"></span>
-</div>
-<button onclick="logout()" class="bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/50 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-<i class="fa-solid fa-right-from-bracket"></i> Verrouiller
-</button>
+<button onclick="logout()" style="background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i> Verrouiller</button>
 </div>
 </div>
 </header>
 <!-- Contenu principal -->
-<main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 space-y-6">
-<div class="flex flex-wrap gap-3 justify-between items-center bg-slate-900/50 p-3 rounded-2xl border border-slate-800">
-<div id="breadcrumb" class="text-sm text-slate-400 flex items-center gap-2">
-<span class="hover:text-white cursor-pointer" onclick="openFolder('OVERVIEW')"><i class="fa-solid fa-house"></i> Accueil (Dossiers)</span>
+<main style="flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 16px;">
+<div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 14px; border-radius: 10px; margin-bottom: 16px; border: 1px solid #334155;">
+<div id="breadcrumb" style="font-size: 13px; color: #94a3b8;">
+<span style="cursor: pointer; color: white;" onclick="openFolder('OVERVIEW')"><i class="fa-solid fa-house"></i> Accueil</span>
 <span id="breadcrumbFolder"></span>
 </div>
-<div class="flex flex-wrap gap-2">
-<button id="btnInventory" onclick="openInventoryModal()" class="hidden bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
-<i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire (PDF)
-</button>
-<button id="btnAdminProfiles" onclick="openAdminUsersModal()" class="hidden bg-purple-900/40 hover:bg-purple-800/50 border border-purple-700 text-purple-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
-<i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs & PIN (Admin)
-</button>
+<div style="display: flex; gap: 6px;">
+<button id="btnInventory" onclick="openInventoryModal()" style="display: none; background: #334155; color: white; border: 1px solid #475569; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-file-pdf" style="color: #f87171;"></i> Inventaire (PDF)</button>
+<button id="btnAdminProfiles" onclick="openAdminUsersModal()" style="display: none; background: #581c87; color: #e9d5ff; border: 1px solid #7e22ce; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-users-gear"></i> Admin</button>
 </div>
 </div>
 <div id="mainContent"></div>
 </main>
 <!-- Modales -->
-<div id="qtyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
-<h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-emerald-400"></i> Saisir la quantité exacte</h3>
-<p id="qtyModalPubTitle" class="text-sm text-slate-400"></p>
-<input type="number" id="exactQtyInput" min="0" class="w-full text-3xl font-bold text-center bg-slate-800 border border-slate-700 rounded-xl p-3 text-emerald-400 focus:outline-none focus:border-emerald-500">
-<div class="flex gap-2">
-<button onclick="closeQtyModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
-<button onclick="saveExactQty()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-medium">Valider</button>
+<div id="qtyModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 320px; border: 1px solid #334155;">
+<h3 style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 8px;">Quantité exacte</h3>
+<p id="qtyModalPubTitle" style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;"></p>
+<input type="number" id="exactQtyInput" min="0" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: #34d399; font-size: 24px; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 12px;">
+<div style="display: flex; gap: 8px;">
+<button onclick="closeQtyModal()" style="flex: 1; background: #334155; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Annuler</button>
+<button onclick="saveExactQty()" style="flex: 1; background: #059669; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Valider</button>
 </div>
 </div>
 </div>
-<div id="codeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-<h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-barcode text-emerald-400"></i> Gérer le Code-barres / QR</h3>
-<p id="codeModalPubTitle" class="text-sm text-slate-400"></p>
-<div>
-<label class="text-xs text-slate-400 block mb-1">Code unique :</label>
-<div class="flex gap-2">
-<input type="text" id="inputAssignedCode" placeholder="ex: EAN-389201" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-<button onclick="startCameraForField()" class="bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1">
-<i class="fa-solid fa-camera"></i> Scanner
-</button>
+<div id="codeModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 340px; border: 1px solid #334155;">
+<h3 style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 8px;">Gérer le Code-barres</h3>
+<p id="codeModalPubTitle" style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;"></p>
+<div style="display: flex; gap: 6px; margin-bottom: 12px;">
+<input type="text" id="inputAssignedCode" placeholder="Code unique" style="flex: 1; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
+<button onclick="startCameraForField()" style="background: #065f46; color: #34d399; border: 1px solid #059669; padding: 8px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-camera"></i> Scanner</button>
 </div>
-</div>
-<div class="flex gap-2 pt-2">
-<button onclick="closeCodeModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
-<button onclick="saveAssignedCode()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-medium">Enregistrer</button>
+<div style="display: flex; gap: 8px;">
+<button onclick="closeCodeModal()" style="flex: 1; background: #334155; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Annuler</button>
+<button onclick="saveAssignedCode()" style="flex: 1; background: #059669; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Enregistrer</button>
 </div>
 </div>
 </div>
-<div id="addPubModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-<div class="flex justify-between items-center"><h3 class="text-lg font-bold text-white">Ajouter une Publication</h3><button onclick="closeAddPubModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
-<form onsubmit="handleAddPub(event)" class="space-y-3">
-<div><label class="text-xs text-slate-400 block mb-1">Catégorie</label><select id="newPubFolder" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white"></select></div>
-<div><label class="text-xs text-slate-400 block mb-1">Titre</label><input type="text" id="newPubTitle" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white"></div>
-<div class="grid grid-cols-2 gap-2">
-<div><label class="text-xs text-slate-400 block mb-1">Code S-28</label><input type="text" id="newPubS28" required class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white"></div>
-<div><label class="text-xs text-slate-400 block mb-1">Qté initiale</label><input type="number" id="newPubQty" value="0" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white"></div>
+<div id="scannerModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 16px; border-radius: 12px; width: 100%; max-width: 360px; border: 1px solid #334155;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"><h3 style="font-size: 15px; font-weight: bold; color: white;">Scanner un Code</h3><button onclick="closeScanner()" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button></div>
+<div id="reader" style="width: 100%; border-radius: 8px; overflow: hidden; margin-bottom: 10px;"></div>
+<button onclick="closeScanner()" style="width: 100%; background: #334155; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Fermer</button>
 </div>
-<div>
-<label class="text-xs text-slate-400 block mb-1">Code-barres / QR Code</label>
-<input type="text" id="newPubCode" placeholder="Scannez ou tapez..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
 </div>
-<button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl text-sm">Enregistrer</button>
+<div id="addPubModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 360px; border: 1px solid #334155;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;"><h3 style="font-size: 16px; font-weight: bold; color: white;">Ajouter une Publication</h3><button onclick="closeAddPubModal()" style="background: none; border: none; color: #94a3b8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button></div>
+<form onsubmit="handleAddPub(event)" style="display: flex; flex-direction: column; gap: 10px;">
+<div><label style="font-size: 11px; color: #94a3b8;">Catégorie</label><select id="newPubFolder" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;"></select></div>
+<div><label style="font-size: 11px; color: #94a3b8;">Titre</label><input type="text" id="newPubTitle" required style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+<div><label style="font-size: 11px; color: #94a3b8;">Code S-28</label><input type="text" id="newPubS28" required style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;"></div>
+<div><label style="font-size: 11px; color: #94a3b8;">Qté initiale</label><input type="number" id="newPubQty" value="0" min="0" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;"></div>
+</div>
+<div><label style="font-size: 11px; color: #94a3b8;">Code-barres / QR</label><input type="text" id="newPubCode" placeholder="Scannez ou tapez..." style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;"></div>
+<button type="submit" style="background: #059669; color: white; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 4px;">Enregistrer</button>
 </form>
 </div>
 </div>
-<div id="addFolderModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
-<h3 class="text-lg font-bold text-white"><i class="fa-solid fa-folder-plus text-emerald-400"></i> Ajouter une Catégorie</h3>
-<input type="text" id="newFolderNameInput" placeholder="Nom de la catégorie" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-<div class="flex gap-2">
-<button onclick="closeAddFolderModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
-<button onclick="saveNewFolder()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-medium">Créer</button>
+<div id="addFolderModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 320px; border: 1px solid #334155;">
+<h3 style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 10px;">Ajouter une Catégorie</h3>
+<input type="text" id="newFolderNameInput" placeholder="Nom" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px; margin-bottom: 12px;">
+<div style="display: flex; gap: 8px;">
+<button onclick="closeAddFolderModal()" style="flex: 1; background: #334155; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Annuler</button>
+<button onclick="saveNewFolder()" style="flex: 1; background: #059669; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Créer</button>
 </div>
 </div>
 </div>
-<div id="scannerModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex-col items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-4 space-y-4">
-<div class="flex justify-between items-center">
-<h3 class="text-lg font-bold text-white"><i class="fa-solid fa-qrcode text-emerald-400"></i> Scanner un Code</h3>
-<button onclick="closeScanner()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-</div>
-<div id="reader" class="w-full rounded-xl overflow-hidden border border-slate-700"></div>
-<button onclick="closeScanner()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
-</div>
-</div>
-<div id="adminUsersModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-<div class="flex justify-between items-center"><h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs & Niveaux</h3><button onclick="closeAdminUsersModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
-<div id="usersListContainer" class="space-y-3"></div>
-<div class="border-t border-slate-800 pt-4 space-y-3">
-<h4 class="text-sm font-bold text-emerald-400">Ajouter un profil & attribuer son niveau</h4>
-<div class="space-y-2">
-<input type="text" id="newUserName" placeholder="Nom et Prénom" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
-<input type="text" id="newUserPin" maxlength="4" placeholder="Code PIN (4 chiffres)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
-<div>
-<label class="text-xs text-slate-400 block mb-1">Niveau d'accès :</label>
-<select id="newUserRole" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
-<option value="1">Niveau 1 : Modifier les quantités</option>
-<option value="2">Niveau 2 : Niveau 1 + Inventaire (Accès & PDF)</option>
-<option value="3">Niveau 3 : Niveau 2 + Ajout/Retrait Pubs, Catégories, Codes Barres/QR</option>
-<option value="4">Niveau 4 : Administrateur (Tous les droits)</option>
+<div id="adminUsersModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid #334155; max-height: 90vh; overflow-y: auto;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;"><h3 style="font-size: 16px; font-weight: bold; color: white;">Gérer Utilisateurs</h3><button onclick="closeAdminUsersModal()" style="background: none; border: none; color: #94a3b8; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button></div>
+<div id="usersListContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
+<div style="border-top: 1px solid #334155; padding-top: 12px;">
+<h4 style="font-size: 13px; font-weight: bold; color: #34d399; margin-bottom: 8px;">Nouveau profil</h4>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<input type="text" id="newUserName" placeholder="Nom et Prénom" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
+<input type="text" id="newUserPin" maxlength="4" placeholder="Code PIN (4 chiffres)" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
+<select id="newUserRole" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
+<option value="1">Niveau 1 : Modifier quantités</option>
+<option value="2">Niveau 2 : Niveau 1 + Inventaire PDF</option>
+<option value="3">Niveau 3 : Niveau 2 + Ajout/Retrait Pubs & Codes</option>
+<option value="4">Niveau 4 : Administrateur (Tous droits)</option>
 </select>
-</div>
-<button onclick="addNewUser()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 rounded-xl text-sm">Créer le profil</button>
-</div>
-</div>
-<button onclick="closeAdminUsersModal()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
+<button onclick="addNewUser()" style="background: #7c3aed; color: white; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Créer le profil</button>
 </div>
 </div>
-<div id="inventoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-<h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire</h3>
-<p class="text-xs text-slate-400">Générez et imprimez le rapport officiel d'inventaire.</p>
-<div class="grid grid-cols-2 gap-3">
-<div><label class="text-xs text-slate-400 block mb-1">Du :</label><input type="date" id="invDateStart" value="2026-10-01" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
-<div><label class="text-xs text-slate-400 block mb-1">Au :</label><input type="date" id="invDateEnd" value="2026-10-27" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
+<button onclick="closeAdminUsersModal()" style="width: 100%; background: #334155; color: white; padding: 10px; border-radius: 8px; border: none; margin-top: 12px; cursor: pointer;">Fermer</button>
 </div>
-<div class="flex gap-2 pt-2">
-<button onclick="closeInventoryModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
-<button onclick="generateInventoryPDF()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-sm font-medium"><i class="fa-solid fa-download"></i> Imprimer / Enregistrer PDF</button>
+</div>
+<div id="inventoryModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
+<div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 340px; border: 1px solid #334155;">
+<h3 style="font-size: 16px; font-weight: bold; color: white; margin-bottom: 6px;">Bilan Inventaire</h3>
+<p style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">Générez le rapport officiel.</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+<div><label style="font-size: 11px; color: #94a3b8;">Du :</label><input type="date" id="invDateStart" value="2026-10-01" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 6px; border-radius: 6px; font-size: 11px;"></div>
+<div><label style="font-size: 11px; color: #94a3b8;">Au :</label><input type="date" id="invDateEnd" value="2026-10-27" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 6px; border-radius: 6px; font-size: 11px;"></div>
+</div>
+<div style="display: flex; gap: 8px;">
+<button onclick="closeInventoryModal()" style="flex: 1; background: #334155; color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer;">Fermer</button>
+<button onclick="generateInventoryPDF()" style="flex: 1; background: #dc2626; color: white; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-download"></i> PDF</button>
 </div>
 </div>
 </div>
@@ -246,10 +213,7 @@ let targetFieldForScan = null;
 function init() {
 saveData();
 populateLockScreenUsers();
-const lockScreen = document.getElementById('lockScreen');
-if (lockScreen) {
-lockScreen.style.display = 'flex';
-}
+document.getElementById('lockScreen').style.display = 'flex';
 }
 function populateLockScreenUsers() {
 const select = document.getElementById('lockUserSelect');
@@ -265,14 +229,14 @@ const errorMsg = document.getElementById('lockErrorMsg');
 if (user && user.pin === enteredPin) {
 activeUserId = user.id;
 document.getElementById('lockPinInput').value = '';
-errorMsg.classList.add('hidden');
+errorMsg.style.display = 'none';
 document.getElementById('lockScreen').style.display = 'none';
 document.getElementById('currentUserNameDisplay').innerText = user.name;
 document.getElementById('currentUserRoleDisplay').innerText = Niveau ${user.role} (${user.role == 4 ? 'Admin' : user.role == 3 ? 'Gestionnaire' : user.role == 2 ? 'Inventaire' : 'Opérateur'});
 renderContent();
 } else {
 errorMsg.innerText = "Code PIN incorrect.";
-errorMsg.classList.remove('hidden');
+errorMsg.style.display = 'block';
 }
 }
 function logout() {
@@ -288,30 +252,30 @@ if (!container) return;
 const user = getUser();
 const roleNum = parseInt(user.role);
 const search = document.getElementById('searchInput').value.trim().toLowerCase();
-document.getElementById('breadcrumbFolder').innerHTML = activeFolder !== 'OVERVIEW' ?  / <span class="font-bold text-emerald-400">${activeFolder}</span> : '';
-document.getElementById('btnInventory').classList.toggle('hidden', roleNum < 2);
-document.getElementById('btnAdminProfiles').classList.toggle('hidden', roleNum < 4);
+document.getElementById('breadcrumbFolder').innerHTML = activeFolder !== 'OVERVIEW' ?  / <span style="font-weight: bold; color: #34d399;">${activeFolder}</span> : '';
+document.getElementById('btnInventory').style.display = roleNum >= 2 ? 'block' : 'none';
+document.getElementById('btnAdminProfiles').style.display = roleNum >= 4 ? 'block' : 'none';
 if (activeFolder !== 'OVERVIEW') { renderFolderView(container, search); return; }
 if (search !== '') {
 const results = publications.filter(p => p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search));
-let html = <div class="space-y-4"><h2 class="text-lg font-bold text-white">Résultats de recherche (${results.length})</h2><div class="space-y-3">;
-if(results.length === 0) html += <div class="text-center text-slate-500 p-6">Aucun article trouvé.</div>;
+let html = <div style="display: flex; flex-direction: column; gap: 10px;"><h2 style="font-size: 16px; font-weight: bold; color: white;">Résultats (${results.length})</h2><div style="display: flex; flex-direction: column; gap: 8px;">;
+if(results.length === 0) html += <div style="text-align: center; color: #64748b; padding: 20px;">Aucun article trouvé.</div>;
 results.forEach(p => {
-html += <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center gap-4"> <div class="flex-1"><span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Catégorie : ${p.folder}</span><h4 class="font-bold text-white mt-1">${p.title}</h4></div> <div class="flex items-center gap-3"> <button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button> <div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-center cursor-pointer"><span class="neon-qty text-xl">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button> </div> </div>;
+html += <div style="background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px;"> <div style="flex: 1;"><span style="font-size: 10px; color: #34d399; background: #022c22; padding: 2px 6px; border-radius: 4px; border: 1px solid #065f46;">${p.folder}</span><h4 style="font-weight: bold; color: white; margin: 4px 0 0 0; font-size: 14px;">${p.title}</h4></div> <div style="display: flex; align-items: center; gap: 8px;"> <button onclick="adjust('${p.id}', -1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">-</button> <div onclick="openQtyModal('${p.id}')" style="background: #020617; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; cursor: pointer;"><span class="neon-qty" style="font-size: 16px;">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">+</button> </div> </div>;
 });
 html += </div></div>;
 container.innerHTML = html;
 return;
 }
-let html = <div class="space-y-4"><div class="flex justify-between items-center"><h2 class="text-lg font-bold text-white">Catégories de Stock</h2>;
+let html = <div style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; justify-content: space-between; align-items: center;"><h2 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Catégories de Stock</h2>;
 if (roleNum >= 3) {
-html += <div class="flex gap-2"> <button onclick="openAddFolderModal()" class="bg-slate-800 text-emerald-400 border border-slate-700 px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-folder-plus"></i> Catégorie</button> <button onclick="openAddPubModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> Publication</button> </div>;
+html += <div style="display: flex; gap: 6px;"> <button onclick="openAddFolderModal()" style="background: #334155; color: #34d399; border: 1px solid #475569; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-folder-plus"></i> Cat.</button> <button onclick="openAddPubModal()" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-plus"></i> Pub</button> </div>;
 }
-html += </div><div class="grid grid-cols-1 md:grid-cols-3 gap-4">;
+html += </div><div style="display: grid; grid-template-columns: 1fr; gap: 10px;">;
 folders.forEach(f => {
 const count = publications.filter(p => p.folder === f.id).length;
 const total = publications.filter(p => p.folder === f.id).reduce((s, p) => s + p.qty, 0);
-html += <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex justify-between items-center"> <div onclick="openFolder('${f.id}')" class="flex items-center gap-3 cursor-pointer flex-1"> <div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-emerald-400 text-xl"><i class="fa-solid ${f.icon}"></i></div> <div><h3 class="font-bold text-white">${f.name}</h3><p class="text-xs text-slate-400">${count} article(s)</p></div> </div> <div class="flex items-center gap-3"> <div onclick="openFolder('${f.id}')" class="text-right cursor-pointer"><span class="neon-qty text-xl block">${total}</span><span class="text-[9px] text-slate-500 uppercase">En stock</span></div> ${roleNum >= 3 ? <button onclick="deleteFolder('${f.id}')" title="Retirer la catégorie" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash-can"></i></button> : ''} </div> </div>;
+html += <div style="background: #1e293b; border: 1px solid #334155; padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;"> <div onclick="openFolder('${f.id}')" style="display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1;"> <div style="width: 36px; height: 36px; background: #0f172a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 16px;"><i class="fa-solid ${f.icon}"></i></div> <div><h3 style="font-weight: bold; color: white; margin: 0; font-size: 15px;">${f.name}</h3><p style="font-size: 11px; color: #94a3b8; margin: 0;">${count} article(s)</p></div> </div> <div style="display: flex; align-items: center; gap: 10px;"> <div onclick="openFolder('${f.id}')" style="text-align: right; cursor: pointer;"><span class="neon-qty" style="font-size: 16px; display: block;">${total}</span><span style="font-size: 8px; color: #64748b; text-transform: uppercase;">Stock</span></div> ${roleNum >= 3 ? <button onclick="deleteFolder('${f.id}')" title="Supprimer" style="background: none; border: none; color: #f87171; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash-can"></i></button> : ''} </div> </div>;
 });
 html += </div></div>;
 container.innerHTML = html;
@@ -321,12 +285,12 @@ function renderFolderView(container, search) {
 const user = getUser();
 const roleNum = parseInt(user.role);
 const list = publications.filter(p => p.folder === activeFolder && (search === '' || p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search)));
-let html = <div class="space-y-4"><div class="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800"> <button onclick="openFolder('OVERVIEW')" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-arrow-left"></i> Retour</button> <h2 class="text-lg font-bold text-emerald-400">${activeFolder}</h2>;
-if (roleNum >= 3) html += <button onclick="openAddPubModal('${activeFolder}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> Ajouter</button>;
-html += </div><div class="space-y-3">;
-if (list.length === 0) html += <div class="text-center text-slate-500 p-6">Aucun article trouvé.</div>;
+let html = <div style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155;"> <button onclick="openFolder('OVERVIEW')" style="background: #334155; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Retour</button> <h2 style="font-size: 15px; font-weight: bold; color: #34d399; margin: 0;">${activeFolder}</h2>;
+if (roleNum >= 3) html += <button onclick="openAddPubModal('${activeFolder}')" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-plus"></i> Ajouter</button>;
+html += </div><div style="display: flex; flex-direction: column; gap: 8px;">;
+if (list.length === 0) html += <div style="text-align: center; color: #64748b; padding: 20px;">Aucun article trouvé.</div>;
 list.forEach(p => {
-html += <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center gap-4"> <div class="flex-1"> <div class="flex items-center gap-2"> <span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">S-28: ${p.s28}</span> ${roleNum >= 3 ? <button onclick="openCodeModal('${p.id}')" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"><i class="fa-solid fa-barcode text-emerald-400"></i> ${p.code ? p.code : '+ Code'}</button>: (p.code ?<span class="text-[10px] text-slate-400"><i class="fa-solid fa-barcode"></i> ${p.code}</span>: '')} </div> <h4 class="font-bold text-white mt-1">${p.title}</h4> </div> <div class="flex items-center gap-3"> <button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button> <div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-center cursor-pointer"><span class="neon-qty text-xl">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button> ${roleNum >= 3 ?<button onclick="deletePub('${p.id}')" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button> : ''} </div> </div>;
+html += <div style="background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;"> <div style="flex: 1;"> <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;"> <span style="font-size: 10px; color: #34d399; background: #022c22; padding: 2px 6px; border-radius: 4px; border: 1px solid #065f46;">S-28: ${p.s28}</span> ${roleNum >= 3 ? <button onclick="openCodeModal('${p.id}')" style="font-size: 10px; background: #0f172a; color: #cbd5e1; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-barcode" style="color: #34d399;"></i> ${p.code ? p.code : '+ Code'}</button>: (p.code ?<span style="font-size: 10px; color: #94a3b8;"><i class="fa-solid fa-barcode"></i> ${p.code}</span>: '')} </div> <h4 style="font-weight: bold; color: white; margin: 0; font-size: 14px;">${p.title}</h4> </div> <div style="display: flex; align-items: center; gap: 8px;"> <button onclick="adjust('${p.id}', -1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">-</button> <div onclick="openQtyModal('${p.id}')" style="background: #020617; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; cursor: pointer;"><span class="neon-qty" style="font-size: 16px;">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">+</button> ${roleNum >= 3 ?<button onclick="deletePub('${p.id}')" style="background: none; border: none; color: #f87171; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button> : ''} </div> </div>;
 });
 html += </div></div>;
 container.innerHTML = html;
@@ -366,7 +330,7 @@ targetField = targetField;
 document.getElementById('scannerModal').style.display = 'flex';
 setTimeout(() => {
 html5QrCode = new Html5Qrcode("reader");
-html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (txt) => handleSuccessfulScan(txt), () => {});
+html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, (txt) => handleSuccessfulScan(txt), () => {});
 }, 300);
 }
 function startCameraForField() { closeCodeModal(); openScanner('field'); }
@@ -396,7 +360,7 @@ closeAddFolderModal();
 renderContent();
 }
 function deleteFolder(id) {
-if(confirm("Supprimer cette catégorie et toutes ses publications ?")) {
+if(confirm("Supprimer cette catégorie et ses publications ?")) {
 folders = folders.filter(f => f.id !== id);
 publications = publications.filter(p => p.folder !== id);
 saveData();
@@ -414,7 +378,7 @@ renderContent();
 function openAdminUsersModal() { renderAdminUsersList(); document.getElementById('adminUsersModal').style.display = 'flex'; }
 function closeAdminUsersModal() { document.getElementById('adminUsersModal').style.display = 'none'; }
 function renderAdminUsersList() {
-document.getElementById('usersListContainer').innerHTML = appUsers.map(u => <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center"> <div><h4 class="font-bold text-white text-sm">${u.name}</h4><span class="text-xs text-purple-400">PIN: ${u.pin} | Niveau ${u.role}</span></div> ${u.id !== 'u1' ?<button onclick="deleteUser('${u.id}')" class="text-red-400 text-xs px-2 py-1 bg-red-950/40 rounded border border-red-900"><i class="fa-solid fa-trash"></i> Retirer</button>: '<span class="text-[10px] text-slate-500">Principal</span>'} </div>).join('');
+document.getElementById('usersListContainer').innerHTML = appUsers.map(u => <div style="background: #0f172a; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;"> <div><h4 style="font-weight: bold; color: white; font-size: 13px; margin: 0;">${u.name}</h4><span style="font-size: 11px; color: #a78bfa;">PIN: ${u.pin} | Niveau ${u.role}</span></div> ${u.id !== 'u1' ?<button onclick="deleteUser('${u.id}')" style="background: #7f1d1d; color: #fca5a5; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;"><i class="fa-solid fa-trash"></i> Retirer</button>: '<span style="font-size: 10px; color: #64748b;">Principal</span>'} </div>).join('');
 }
 function addNewUser() {
 const name = document.getElementById('newUserName').value.trim();
