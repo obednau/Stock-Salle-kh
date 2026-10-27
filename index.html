@@ -24,7 +24,7 @@ padding: 1rem;
 </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
-<!-- Écran de verrouillage -->
+<!-- Écran de verrouillage avec options en dur pour garantir l'affichage -->
 <div id="lockScreen">
 <div style="background-color: #1e293b; border: 1px solid #334155;" class="rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
 <div class="w-16 h-16 bg-emerald-600/25 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
@@ -37,7 +37,12 @@ padding: 1rem;
 <div class="space-y-4 text-left">
 <div>
 <label class="text-xs text-slate-400 block mb-1">Votre Profil :</label>
-<select id="lockUserSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer"></select>
+<select id="lockUserSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer">
+<option value="u1">Administrateur Principal [Niveau 4]</option>
+<option value="u2">Frère Gestionnaire [Niveau 3]</option>
+<option value="u3">Frère Inventaire [Niveau 2]</option>
+<option value="u4">Frère Assistant [Niveau 1]</option>
+</select>
 </div>
 <div>
 <label class="text-xs text-slate-400 block mb-1">Code PIN (4 chiffres) :</label>
@@ -57,7 +62,7 @@ Se connecter
 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
 <div>
 <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v2.0.1</p>
+<p class="text-xs text-slate-400">Gestionnaire v2.0.2</p>
 </div>
 </div>
 <div class="flex-1 max-w-md w-full flex gap-2">
@@ -464,9 +469,7 @@ printWindow.document.write(htmlContent);
 printWindow.document.close();
 closeInventoryModal();
 }
-// Exécuter l'initialisation immédiatement et au chargement de la page
 populateLockScreenUsers();
-document.addEventListener('DOMContentLoaded', init);
 window.onload = init;
 </script>
 </body>
