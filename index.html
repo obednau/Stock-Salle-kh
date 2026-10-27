@@ -57,7 +57,7 @@ Se connecter
 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
 <div>
 <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v2.0.0</p>
+<p class="text-xs text-slate-400">Gestionnaire v2.0.1</p>
 </div>
 </div>
 <div class="flex-1 max-w-md w-full flex gap-2">
@@ -241,7 +241,10 @@ let targetFieldForScan = null;
 function init() {
 saveData();
 populateLockScreenUsers();
-document.getElementById('lockScreen').style.display = 'flex';
+const lockScreen = document.getElementById('lockScreen');
+if (lockScreen) {
+lockScreen.style.display = 'flex';
+}
 }
 function populateLockScreenUsers() {
 const select = document.getElementById('lockUserSelect');
@@ -461,7 +464,10 @@ printWindow.document.write(htmlContent);
 printWindow.document.close();
 closeInventoryModal();
 }
+// Exécuter l'initialisation immédiatement et au chargement de la page
+populateLockScreenUsers();
 document.addEventListener('DOMContentLoaded', init);
+window.onload = init;
 </script>
 </body>
 </html>
