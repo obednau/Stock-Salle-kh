@@ -11,11 +11,22 @@
 .neon-qty { color: #39FF14; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); font-weight: 900; }
 body { background-color: #0f172a; color: #f8fafc; }
 select option { background-color: #1e293b; color: #f8fafc; }
+/* Style absolu pour l'écran de verrouillage en plein écran opaque */
+#lockScreen {
+position: fixed;
+inset: 0;
+background-color: #020617;
+z-index: 99999;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 1rem;
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
 <!-- Écran de verrouillage -->
-<div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4" style="display: flex;">
+<div id="lockScreen">
 <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
 <div class="w-16 h-16 bg-emerald-600/25 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
 <i class="fa-solid fa-lock"></i>
@@ -47,7 +58,7 @@ Se connecter
 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
 <div>
 <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v1.9.8</p>
+<p class="text-xs text-slate-400">Gestionnaire v1.9.9</p>
 </div>
 </div>
 <div class="flex-1 max-w-md w-full flex gap-2">
@@ -64,7 +75,6 @@ Se connecter
 <span id="currentUserNameDisplay" class="text-xs font-bold text-white block"></span>
 <span id="currentUserRoleDisplay" class="text-[10px] text-emerald-400 block"></span>
 </div>
-<!-- Bouton de déconnexion bien visible et explicite -->
 <button onclick="logout()" class="bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/50 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
 <i class="fa-solid fa-right-from-bracket"></i> Verrouiller
 </button>
@@ -224,7 +234,6 @@ localStorage.setItem('kh_users', JSON.stringify(appUsers));
 localStorage.setItem('kh_folders', JSON.stringify(folders));
 localStorage.setItem('kh_pubs', JSON.stringify(publications));
 }
-// Forcé à null pour exiger le code PIN à chaque ouverture de l'application
 let activeUserId = null;
 let activeFolder = 'OVERVIEW';
 let selectedPubId = null;
@@ -233,7 +242,6 @@ let targetFieldForScan = null;
 function init() {
 saveData();
 populateLockScreenUsers();
-// Toujours afficher l'écran de verrouillage au lancement
 document.getElementById('lockScreen').style.display = 'flex';
 }
 function populateLockScreenUsers() {
