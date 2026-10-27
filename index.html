@@ -3,22 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Salle KH - Gestion des Codes</title>
+    <title>Stock Salle KH - Sécurisé par Profil</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         .neon-qty { color: #39FF14; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); font-weight: 900; }
         body { background-color: #0f172a; color: #f8fafc; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
+
+    <!-- ÉCRAN DE VERROUILLAGE / CHOIX DU PROFIL ET PIN -->
+    <div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
+            <div class="w-16 h-16 bg-emerald-600/20 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Stock Salle KH</h2>
+                <p class="text-xs text-slate-400 mt-1">Sélectionnez votre profil et entrez votre code PIN</p>
+            </div>
+            
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Votre Profil :</label>
+                    <select id="lockUserSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-emerald-500 cursor-pointer"></select>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400 block mb-1">Code PIN (4 chiffres) :</label>
+                    <input type="password" id="lockPinInput" maxlength="4" placeholder="••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-center text-2xl tracking-widest text-emerald-400 focus:outline-none focus:border-emerald-500">
+                </div>
+                <button onclick="attemptLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl text-sm transition shadow-lg">
+                    Se connecter
+                </button>
+            </div>
+            <p id="lockErrorMsg" class="text-xs text-red-400 hidden"></p>
+        </div>
+    </div>
     <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-30 shadow-lg">
         <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 cursor-pointer" onclick="openFolder('OVERVIEW')">
                 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
                 <div>
                     <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-                    <p class="text-xs text-slate-400">Gestionnaire v1.4 (Codes & Scan)</p>
+                    <p class="text-xs text-slate-400">Gestionnaire Sécurisé v1.6</p>
                 </div>
             </div>
             <div class="flex-1 max-w-md w-full flex gap-2">
@@ -30,9 +59,14 @@
                     <i class="fa-solid fa-qrcode"></i><span>Scanner</span>
                 </button>
             </div>
-            <div class="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
-                <i class="fa-solid fa-user-shield text-emerald-400 ml-2"></i>
-                <select id="userSelector" onchange="changeUser(this.value)" class="bg-transparent text-xs text-white p-1 focus:outline-none cursor-pointer font-medium"></select>
+            <div class="flex items-center gap-3 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
+                <div class="text-right px-2">
+                    <span id="currentUserNameDisplay" class="text-xs font-bold text-white block"></span>
+                    <span id="currentUserRoleDisplay" class="text-[10px] text-emerald-400 block"></span>
+                </div>
+                <button onclick="logout()" title="Verrouiller / Changer de profil" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-lg text-xs transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -45,51 +79,49 @@
             </div>
             <div class="flex flex-wrap gap-2">
                 <button onclick="openInventoryModal()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
-                    <i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire (Niveau 1)
+                    <i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire
                 </button>
-                <button id="btnAdminProfiles" onclick="alert('Gestion Admin : Attribuez les permissions aux assistants Steve Cadet et Lecomte Roy.')" class="hidden bg-purple-900/40 hover:bg-purple-800/50 border border-purple-700 text-purple-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
-                    <i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs (Admin)
+                <button id="btnAdminProfiles" onclick="openAdminUsersModal()" class="hidden bg-purple-900/40 hover:bg-purple-800/50 border border-purple-700 text-purple-200 px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-users-gear text-purple-400"></i> Gérer Utilisateurs & PIN (Admin)
                 </button>
             </div>
         </div>
         <div id="mainContent"></div>
     </main>
 
-    <!-- Modale Quantité Exacte -->
+    <!-- Modales -->
     <div id="qtyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
             <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-emerald-400"></i> Saisir la quantité exacte</h3>
             <p id="qtyModalPubTitle" class="text-sm text-slate-400"></p>
             <input type="number" id="exactQtyInput" min="0" class="w-full text-3xl font-bold text-center bg-slate-800 border border-slate-700 rounded-xl p-3 text-emerald-400 focus:outline-none focus:border-emerald-500">
             <div class="flex gap-2">
-                <button onclick="closeQtyModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
-                <button onclick="saveExactQty()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-medium">Valider</button>
+                <button onclick="closeQtyModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
+                <button onclick="saveExactQty()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-medium">Valider</button>
             </div>
         </div>
     </div>
 
-    <!-- Modale Assigner / Modifier Code-barres ou QR -->
     <div id="codeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-barcode text-emerald-400"></i> Attribuer un Code-barres / QR</h3>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-barcode text-emerald-400"></i> Attribuer un Code</h3>
             <p id="codeModalPubTitle" class="text-sm text-slate-400"></p>
             <div>
-                <label class="text-xs text-slate-400 block mb-1">Code unique (Scannez ou saisissez) :</label>
+                <label class="text-xs text-slate-400 block mb-1">Code unique :</label>
                 <div class="flex gap-2">
-                    <input type="text" id="inputAssignedCode" placeholder="ex: EAN-389201 ou QR-99" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    <button onclick="simulateScanIntoField()" class="bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-emerald-300 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1">
+                    <input type="text" id="inputAssignedCode" placeholder="ex: EAN-389201" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <button onclick="startCameraForField()" class="bg-emerald-600/30 border border-emerald-500/50 text-emerald-300 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1">
                         <i class="fa-solid fa-camera"></i> Scanner
                     </button>
                 </div>
             </div>
             <div class="flex gap-2 pt-2">
-                <button onclick="closeCodeModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
-                <button onclick="saveAssignedCode()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-medium">Enregistrer le Code</button>
+                <button onclick="closeCodeModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Annuler</button>
+                <button onclick="saveAssignedCode()" class="flex-1 bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-medium">Enregistrer</button>
             </div>
         </div>
     </div>
 
-    <!-- Modale Ajout Publication -->
     <div id="addPubModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
             <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-white">Ajouter une Publication</h3><button onclick="closeAddPubModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
@@ -101,52 +133,72 @@
                     <div><label class="text-xs text-slate-400 block mb-1">Qté initiale</label><input type="number" id="newPubQty" value="0" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white"></div>
                 </div>
                 <div>
-                    <label class="text-xs text-slate-400 block mb-1">Code-barres / QR Code (Optionnel ou via Scan)</label>
-                    <input type="text" id="newPubCode" placeholder="Scannez ou tapez le code..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                    <label class="text-xs text-slate-400 block mb-1">Code-barres / QR Code</label>
+                    <input type="text" id="newPubCode" placeholder="Scannez ou tapez..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl text-sm">Enregistrer</button>
             </form>
         </div>
     </div>
 
-    <!-- Modale Scanner Global -->
-    <div id="scannerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 text-center space-y-4">
-            <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-qrcode text-emerald-400"></i> Scanner un Code</h3>
-            <p class="text-xs text-slate-400">Scannez ou entrez un code-barres. Si le code est inconnu, l'application proposera de l'associer à une nouvelle fiche.</p>
-            <input type="text" id="scanInputValue" placeholder="Entrez code S-28 ou code-barres..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-center text-white focus:outline-none focus:border-emerald-500">
-            <div class="flex gap-2">
-                <button onclick="closeScanner()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
-                <button onclick="executeScan()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl text-sm font-medium">Rechercher</button>
+    <div id="scannerModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden flex flex-col items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-4 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-qrcode text-emerald-400"></i> Scanner un Code</h3>
+                <button onclick="closeScanner()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            <div id="reader" class="w-full rounded-xl overflow-hidden border border-slate-700"></div>
+            <button onclick="closeScanner()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
         </div>
     </div>
 
-    <!-- Modale Inventaire -->
+    <div id="adminUsersModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center"><h3 class="text-lg font-bold text-white"><i class="fa-solid fa-users-gear text-purple-400"></i> Gérer les Utilisateurs & Codes PIN</h3><button onclick="closeAdminUsersModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button></div>
+            <div id="usersListContainer" class="space-y-3"></div>
+            <div class="border-t border-slate-800 pt-4 space-y-3">
+                <h4 class="text-sm font-bold text-emerald-400">Ajouter un profil</h4>
+                <div class="space-y-2">
+                    <input type="text" id="newUserName" placeholder="Nom et Prénom" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                    <input type="text" id="newUserPin" maxlength="4" placeholder="Code PIN (4 chiffres)" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                    <select id="newUserRole" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-sm text-white">
+                        <option value="comptoir">Assistant (Comptoir / Édition)</option>
+                        <option value="1">Frère Lecteur (Niveau 1)</option>
+                        <option value="3">Administrateur</option>
+                    </select>
+                    <button onclick="addNewUser()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium py-2.5 rounded-xl text-sm">Créer le profil</button>
+                </div>
+            </div>
+            <button onclick="closeAdminUsersModal()" class="w-full bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
+        </div>
+    </div>
+
     <div id="inventoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire (Niveau 1)</h3>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-file-pdf text-red-400"></i> Bilan Inventaire</h3>
             <div class="grid grid-cols-2 gap-3">
                 <div><label class="text-xs text-slate-400 block mb-1">Du :</label><input type="date" value="2026-10-01" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
                 <div><label class="text-xs text-slate-400 block mb-1">Au :</label><input type="date" value="2026-10-27" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></div>
             </div>
             <div class="flex gap-2">
-                <button onclick="closeInventoryModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
-                <button onclick="alert('Inventaire PDF téléchargé avec succès !')" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-sm font-medium"><i class="fa-solid fa-download"></i> Télécharger PDF</button>
+                <button onclick="closeInventoryModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl text-sm">Fermer</button>
+                <button onclick="alert('Inventaire PDF téléchargé !')" class="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-medium"><i class="fa-solid fa-download"></i> Télécharger PDF</button>
             </div>
         </div>
     </div>
 
     <script>
         let appUsers = [
-            { id: 'u1', name: 'Administrateur Principal', role: '3' },
-            { id: 'u2', name: 'Steve Cadet (Assistant)', role: 'comptoir' },
-            { id: 'u3', name: 'Lecomte Roy (Assistant)', role: 'comptoir' },
-            { id: 'u4', name: 'Frère Lecteur (Niveau 1)', role: '1' }
+            { id: 'u1', name: 'Administrateur Principal', role: '3', pin: '0000' },
+            { id: 'u2', name: 'Steve Cadet (Assistant)', role: 'comptoir', pin: '1234' },
+            { id: 'u3', name: 'Lecomte Roy (Assistant)', role: 'comptoir', pin: '5678' },
+            { id: 'u4', name: 'Frère Lecteur', role: '1', pin: '1111' }
         ];
-        let activeUserId = 'u1';
+        let activeUserId = null;
         let activeFolder = 'OVERVIEW';
         let selectedPubId = null;
+        let html5QrCode = null;
+        let targetFieldForScan = null;
 
         let folders = [
             { id: 'Bibles', name: 'Bibles', icon: 'fa-book-bible' },
@@ -164,15 +216,40 @@
             { id: 'PUB-005', folder: 'Tracts', title: 'Où trouver les réponses aux grandes questions ?', s28: 'T-37-F', qty: 350, code: '' }
         ];
 
-        function init() {
-            renderUsers();
-            renderContent();
+        function init() { populateLockScreenUsers(); }
+        function populateLockScreenUsers() {
+            const select = document.getElementById('lockUserSelect');
+            select.innerHTML = appUsers.map(u => `<option value="${u.id}">${u.name} [${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur' : 'Assistant'}]</option>`).join('');
         }
-        function renderUsers() {
-            document.getElementById('userSelector').innerHTML = appUsers.map(u => `<option value="${u.id}" ${u.id === activeUserId ? 'selected' : ''}>${u.name} [${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur' : 'Assistant'}]</option>`).join('');
+
+        function attemptLogin() {
+            const selectedId = document.getElementById('lockUserSelect').value;
+            const enteredPin = document.getElementById('lockPinInput').value.trim();
+            const user = appUsers.find(u => u.id === selectedId);
+            const errorMsg = document.getElementById('lockErrorMsg');
+
+            if (user && user.pin === enteredPin) {
+                activeUserId = user.id;
+                document.getElementById('lockPinInput').value = '';
+                errorMsg.classList.add('hidden');
+                document.getElementById('lockScreen').classList.add('hidden');
+                document.getElementById('currentUserNameDisplay').innerText = user.name;
+                document.getElementById('currentUserRoleDisplay').innerText = user.role === '3' ? 'Administrateur' : user.role === '1' ? 'Lecteur' : 'Assistant';
+                renderContent();
+            } else {
+                errorMsg.innerText = "Code PIN incorrect.";
+                errorMsg.classList.remove('hidden');
+            }
         }
-        function changeUser(id) { activeUserId = id; renderUsers(); renderContent(); }
-        function getUser() { return appUsers.find(u => u.id === activeUserId); }
+
+        function logout() {
+            activeUserId = null;
+            document.getElementById('lockPinInput').value = '';
+            populateLockScreenUsers();
+            document.getElementById('lockScreen').classList.remove('hidden');
+        }
+
+        function getUser() { return appUsers.find(u => u.id === activeUserId) || appUsers[0]; }
 
         function renderContent() {
             const container = document.getElementById('mainContent');
@@ -181,19 +258,29 @@
             document.getElementById('breadcrumbFolder').innerHTML = activeFolder !== 'OVERVIEW' ? ` / <span class="font-bold text-emerald-400">${activeFolder}</span>` : '';
             document.getElementById('btnAdminProfiles').classList.toggle('hidden', user.role !== '3');
 
-            if (activeFolder !== 'OVERVIEW') {
-                renderFolderView(container, search);
+            if (activeFolder !== 'OVERVIEW') { renderFolderView(container, search); return; }
+
+            if (search !== '') {
+                const results = publications.filter(p => p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search));
+                let html = `<div class="space-y-4"><h2 class="text-lg font-bold text-white">Résultats de recherche (${results.length})</h2><div class="space-y-3">`;
+                if(results.length === 0) html += `<div class="text-center text-slate-500 p-6">Aucun article trouvé.</div>`;
+                results.forEach(p => {
+                    html += `<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center gap-4">
+                        <div class="flex-1"><span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">Catégorie : ${p.folder}</span><h4 class="font-bold text-white mt-1">${p.title}</h4></div>
+                        <div class="flex items-center gap-3"><button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button><div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl cursor-pointer border border-slate-800 text-center"><span class="neon-qty text-xl">${p.qty}</span></div><button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button></div>
+                    </div>`;
+                });
+                html += `</div></div>`;
+                container.innerHTML = html;
                 return;
             }
 
             let html = `<div class="space-y-4"><div class="flex justify-between items-center"><h2 class="text-lg font-bold text-white">Catégories de Stock</h2>`;
-            if (user.role === '2' || user.role === '3') {
-                html += `<button onclick="openAddPubModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> Ajouter</button>`;
-            }
+            if (user.role === 'comptoir' || user.role === '3') html += `<button onclick="openAddPubModal()" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> Ajouter</button>`;
             html += `</div><div class="grid grid-cols-1 md:grid-cols-3 gap-4">`;
 
             folders.forEach(f => {
-                const count = publications.filter(p => p.folder === f.id && (search === '' || p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search))).length;
+                const count = publications.filter(p => p.folder === f.id).length;
                 const total = publications.filter(p => p.folder === f.id).reduce((s, p) => s + p.qty, 0);
                 html += `<div onclick="openFolder('${f.id}')" class="bg-slate-900 border border-slate-800 hover:border-emerald-500 p-5 rounded-2xl cursor-pointer flex justify-between items-center">
                     <div class="flex items-center gap-3"><div class="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center text-emerald-400 text-xl"><i class="fa-solid ${f.icon}"></i></div><div><h3 class="font-bold text-white">${f.name}</h3><p class="text-xs text-slate-400">${count} article(s)</p></div></div>
@@ -204,36 +291,27 @@
             container.innerHTML = html;
         }
 
-        function openFolder(f) { activeFolder = f; renderContent(); }
+        function openFolder(f) { activeFolder = f; document.getElementById('searchInput').value = ''; renderContent(); }
 
         function renderFolderView(container, search) {
             const user = getUser();
             const list = publications.filter(p => p.folder === activeFolder && (search === '' || p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search)));
-            const canEdit = (user.role === '2' || user.role === '3');
+            const canEdit = (user.role === 'comptoir' || user.role === '3');
 
             let html = `<div class="space-y-4"><div class="flex justify-between items-center bg-slate-900 p-4 rounded-2xl border border-slate-800">
                 <button onclick="openFolder('OVERVIEW')" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-arrow-left"></i> Retour</button>
                 <h2 class="text-lg font-bold text-emerald-400">${activeFolder}</h2>`;
-            if (canEdit) html += `<button onclick="openAddPubModal('${activeFolder}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> Ajouter une publication</button>`;
+            if (canEdit) html += `<button onclick="openAddPubModal('${activeFolder}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs"><i class="fa-solid fa-plus"></i> Ajouter</button>`;
             html += `</div><div class="space-y-3">`;
 
             if (list.length === 0) html += `<div class="text-center text-slate-500 p-6">Aucun article trouvé.</div>`;
             list.forEach(p => {
                 html += `<div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex justify-between items-center gap-4">
                     <div class="flex-1">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">S-28: ${p.s28}</span>
-                            <button onclick="openCodeModal('${p.id}')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-700 flex items-center gap-1 transition">
-                                <i class="fa-solid fa-barcode text-emerald-400"></i> ${p.code ? p.code : '+ Associer code-barres'}
-                            </button>
-                        </div>
+                        <div class="flex items-center gap-2"><span class="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">S-28: ${p.s28}</span><button onclick="openCodeModal('${p.id}')" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700"><i class="fa-solid fa-barcode text-emerald-400"></i> ${p.code ? p.code : '+ Code'}</button></div>
                         <h4 class="font-bold text-white mt-1">${p.title}</h4>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button>
-                        <div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl cursor-pointer border border-slate-800 hover:border-emerald-500 text-center"><span class="neon-qty text-xl">${p.qty}</span><span class="block text-[8px] text-slate-500">EXACT</span></div>
-                        <button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button>
-                    </div>
+                    <div class="flex items-center gap-3"><button onclick="adjust('${p.id}', -1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">-</button><div onclick="openQtyModal('${p.id}')" class="bg-slate-950 px-4 py-2 rounded-xl cursor-pointer border border-slate-800 text-center"><span class="neon-qty text-xl">${p.qty}</span></div><button onclick="adjust('${p.id}', 1)" class="w-8 h-8 bg-slate-800 rounded-xl font-bold">+</button></div>
                 </div>`;
             });
             html += `</div></div>`;
@@ -241,57 +319,63 @@
         }
 
         function adjust(id, delta) { const p = publications.find(x => x.id === id); if(p) { p.qty = Math.max(0, p.qty + delta); renderContent(); } }
-        
         function openQtyModal(id) { selectedPubId = id; const p = publications.find(x => x.id === id); document.getElementById('qtyModalPubTitle').innerText = p.title; document.getElementById('exactQtyInput').value = p.qty; document.getElementById('qtyModal').classList.remove('hidden'); }
         function closeQtyModal() { document.getElementById('qtyModal').classList.add('hidden'); }
-        function saveExactQty() { const v = parseInt(document.getElementById('exactQtyInput').value); if(!isNaN(v) && v >= 0) { publications.find(x => x.id === selectedPubId).qty = v; } closeQtyModal(); renderContent(); }
+        function saveExactQty() { const v = parseInt(document.getElementById('exactQtyInput').value); if(!isNaN(v) && v >= 0) publications.find(x => x.id === selectedPubId).qty = v; closeQtyModal(); renderContent(); }
 
-        // Gestion Code-barres / QR existants
-        function openCodeModal(id) {
-            selectedPubId = id;
-            const p = publications.find(x => x.id === id);
-            document.getElementById('codeModalPubTitle').innerText = p.title;
-            document.getElementById('inputAssignedCode').value = p.code || '';
-            document.getElementById('codeModal').classList.remove('hidden');
-        }
+        function openCodeModal(id) { selectedPubId = id; const p = publications.find(x => x.id === id); document.getElementById('codeModalPubTitle').innerText = p.title; document.getElementById('inputAssignedCode').value = p.code || ''; document.getElementById('codeModal').classList.remove('hidden'); }
         function closeCodeModal() { document.getElementById('codeModal').classList.add('hidden'); }
-        function simulateScanIntoField() {
-            const scanned = 'BARCODE-' + Math.floor(100 + Math.random() * 900);
-            document.getElementById('inputAssignedCode').value = scanned;
+        function saveAssignedCode() { const val = document.getElementById('inputAssignedCode').value.trim(); if(selectedPubId) publications.find(x => x.id === selectedPubId).code = val; closeCodeModal(); renderContent(); }
+
+        function openScanner(targetField = null) {
+            targetField = targetField;
+            document.getElementById('scannerModal').classList.remove('hidden');
+            setTimeout(() => {
+                html5QrCode = new Html5Qrcode("reader");
+                html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (txt) => handleSuccessfulScan(txt), () => {});
+            }, 300);
         }
-        function saveAssignedCode() {
-            const val = document.getElementById('inputAssignedCode').value.trim();
-            if(selectedPubId) {
-                const p = publications.find(x => x.id === selectedPubId);
-                if(p) p.code = val;
-            }
-            closeCodeModal();
-            renderContent();
+        function startCameraForField() { closeCodeModal(); openScanner('field'); }
+        function closeScanner() {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().then(() => document.getElementById('scannerModal').classList.add('hidden')).catch(() => document.getElementById('scannerModal').classList.add('hidden'));
+            } else { document.getElementById('scannerModal').classList.add('hidden'); }
         }
-        
+        function handleSuccessfulScan(codeText) {
+            closeScanner();
+            if (targetField === 'field' && selectedPubId) { document.getElementById('inputAssignedCode').value = codeText; openCodeModal(selectedPubId); targetField = null; return; }
+            const matches = publications.filter(p => p.code.toLowerCase() === codeText.toLowerCase());
+            if (matches.length > 0) { activeFolder = matches[0].folder; document.getElementById('searchInput').value = codeText; renderContent(); }
+            else { alert(`Code scanné inconnu : "${codeText}"`); document.getElementById('searchInput').value = codeText; renderContent(); }
+        }
+
+        function openAdminUsersModal() { renderAdminUsersList(); document.getElementById('adminUsersModal').classList.remove('hidden'); }
+        function closeAdminUsersModal() { document.getElementById('adminUsersModal').classList.add('hidden'); }
+        function renderAdminUsersList() {
+            document.getElementById('usersListContainer').innerHTML = appUsers.map(u => `
+                <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center">
+                    <div><h4 class="font-bold text-white text-sm">${u.name}</h4><span class="text-xs text-purple-400">PIN: ${u.pin} | ${u.role === '3' ? 'Admin' : u.role === '1' ? 'Lecteur' : 'Assistant'}</span></div>
+                    ${u.id !== 'u1' ? `<button onclick="deleteUser('${u.id}')" class="text-red-400 text-xs px-2 py-1 bg-red-950/40 rounded border border-red-900"><i class="fa-solid fa-trash"></i> Retirer</button>` : '<span class="text-[10px] text-slate-500">Principal</span>'}
+                </div>
+            `).join('');
+        }
+        function addNewUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const pin = document.getElementById('newUserPin').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            if(!name || pin.length !== 4) { alert("Nom et PIN 4 chiffres obligatoires."); return; }
+            appUsers.push({ id: 'u-' + Date.now(), name: name, role: role, pin: pin });
+            document.getElementById('newUserName').value = ''; document.getElementById('newUserPin').value = '';
+            populateLockScreenUsers(); renderAdminUsersList();
+        }
+        function deleteUser(id) { appUsers = appUsers.filter(u => u.id !== id); populateLockScreenUsers(); renderAdminUsersList(); }
+
         function openAddPubModal(f = 'Bibles') { document.getElementById('newPubFolder').value = f; document.getElementById('addPubModal').classList.remove('hidden'); }
         function closeAddPubModal() { document.getElementById('addPubModal').classList.add('hidden'); }
         function handleAddPub(e) { 
             e.preventDefault(); 
-            publications.push({ 
-                id: 'PUB-'+Date.now(), 
-                folder: document.getElementById('newPubFolder').value, 
-                title: document.getElementById('newPubTitle').value, 
-                s28: document.getElementById('newPubS28').value, 
-                qty: parseInt(document.getElementById('newPubQty').value)||0,
-                code: document.getElementById('newPubCode').value.trim()
-            }); 
-            closeAddPubModal(); 
-            openFolder(document.getElementById('newPubFolder').value); 
-        }
-
-        function openScanner() { document.getElementById('scannerModal').classList.remove('hidden'); }
-        function closeScanner() { document.getElementById('scannerModal').classList.add('hidden'); }
-        function executeScan() { 
-            const val = document.getElementById('scanInputValue').value.trim(); 
-            closeScanner(); 
-            document.getElementById('searchInput').value = val; 
-            renderContent(); 
+            publications.push({ id: 'PUB-'+Date.now(), folder: document.getElementById('newPubFolder').value, title: document.getElementById('newPubTitle').value, s28: document.getElementById('newPubS28').value, qty: parseInt(document.getElementById('newPubQty').value)||0, code: document.getElementById('newPubCode').value.trim() }); 
+            closeAddPubModal(); openFolder(document.getElementById('newPubFolder').value); 
         }
 
         function openInventoryModal() { document.getElementById('inventoryModal').classList.remove('hidden'); }
