@@ -14,8 +14,8 @@ select option { background-color: #1e293b; color: #f8fafc; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans">
-<!-- Écran de verrouillage (masqué par défaut en JS à l'init) -->
-<div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4" style="display: none;">
+<!-- Écran de verrouillage -->
+<div id="lockScreen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4" style="display: flex;">
 <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
 <div class="w-16 h-16 bg-emerald-600/25 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
 <i class="fa-solid fa-lock"></i>
@@ -47,7 +47,7 @@ Se connecter
 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
 <div>
 <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v1.9.7</p>
+<p class="text-xs text-slate-400">Gestionnaire v1.9.8</p>
 </div>
 </div>
 <div class="flex-1 max-w-md w-full flex gap-2">
@@ -64,8 +64,9 @@ Se connecter
 <span id="currentUserNameDisplay" class="text-xs font-bold text-white block"></span>
 <span id="currentUserRoleDisplay" class="text-[10px] text-emerald-400 block"></span>
 </div>
-<button onclick="logout()" title="Verrouiller / Changer de profil" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-lg text-xs transition">
-<i class="fa-solid fa-right-from-bracket"></i>
+<!-- Bouton de déconnexion bien visible et explicite -->
+<button onclick="logout()" class="bg-red-600/30 hover:bg-red-600/50 text-red-300 border border-red-500/50 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+<i class="fa-solid fa-right-from-bracket"></i> Verrouiller
 </button>
 </div>
 </div>
@@ -88,7 +89,7 @@ Se connecter
 </div>
 <div id="mainContent"></div>
 </main>
-<!-- Modales (Toutes masquées par défaut en JS) -->
+<!-- Modales -->
 <div id="qtyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm items-center justify-center p-4 z-50" style="display: none;">
 <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-4">
 <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-pen-to-square text-emerald-400"></i> Saisir la quantité exacte</h3>
@@ -223,6 +224,7 @@ localStorage.setItem('kh_users', JSON.stringify(appUsers));
 localStorage.setItem('kh_folders', JSON.stringify(folders));
 localStorage.setItem('kh_pubs', JSON.stringify(publications));
 }
+// Forcé à null pour exiger le code PIN à chaque ouverture de l'application
 let activeUserId = null;
 let activeFolder = 'OVERVIEW';
 let selectedPubId = null;
@@ -231,7 +233,7 @@ let targetFieldForScan = null;
 function init() {
 saveData();
 populateLockScreenUsers();
-// Forcer l'affichage de l'écran de verrouillage au démarrage
+// Toujours afficher l'écran de verrouillage au lancement
 document.getElementById('lockScreen').style.display = 'flex';
 }
 function populateLockScreenUsers() {
