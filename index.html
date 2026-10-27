@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -22,7 +23,7 @@ padding: 20px;
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
-<!-- Écran de verrouillage simplifié et garanti sans bug -->
+<!-- Écran de verrouillage -->
 <div id="lockScreen">
 <div style="background: #1e293b; border: 1px solid #334155; padding: 24px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center;">
 <div style="font-size: 32px; color: #34d399; margin-bottom: 12px;"><i class="fa-solid fa-lock"></i></div>
@@ -30,12 +31,7 @@ padding: 20px;
 <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Sélectionnez votre profil et entrez votre code PIN</p>
 <div style="text-align: left; margin-bottom: 12px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Votre Profil :</label>
-<select id="lockUserSelect" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
-<option value="u1">Administrateur Principal [Niveau 4]</option>
-<option value="u2">Frère Gestionnaire [Niveau 3]</option>
-<option value="u3">Frère Inventaire [Niveau 2]</option>
-<option value="u4">Frère Assistant [Niveau 1]</option>
-</select>
+<select id="lockUserSelect" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;"></select>
 </div>
 <div style="text-align: left; margin-bottom: 16px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Code PIN (4 chiffres) :</label>
@@ -54,7 +50,7 @@ Se connecter
 <div style="background: #059669; padding: 8px; border-radius: 8px; color: white;"><i class="fa-solid fa-boxes-stacked"></i></div>
 <div>
 <h1 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Stock Salle KH</h1>
-<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.1.0</p>
+<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.1.1</p>
 </div>
 </div>
 <div style="flex: 1; max-width: 300px; display: flex; gap: 6px;">
@@ -179,13 +175,19 @@ Se connecter
 </div>
 <!-- Script JavaScript -->
 <script>
-let savedUsers = JSON.parse(localStorage.getItem('kh_users'));
-let appUsers = (savedUsers && savedUsers.length > 0) ? savedUsers : [
+// Forcer les utilisateurs par défaut avec les bons codes PIN (Administrateur = 0000)
+let defaultUsers = [
 { id: 'u1', name: 'Administrateur Principal', role: '4', pin: '0000' },
 { id: 'u2', name: 'Frère Gestionnaire', role: '3', pin: '1234' },
 { id: 'u3', name: 'Frère Inventaire', role: '2', pin: '5678' },
 { id: 'u4', name: 'Frère Assistant', role: '1', pin: '1111' }
 ];
+let savedUsers = JSON.parse(localStorage.getItem('kh_users'));
+// Si aucun utilisateur n'est enregistré ou si l'admin n'a pas le bon pin, on réinitialise proprement
+let appUsers = (savedUsers && savedUsers.length > 0) ? savedUsers : defaultUsers;
+// S'assurer que l'administrateur principal a bien le code 0000
+let adminUser = appUsers.find(u => u.id === 'u1');
+if (adminUser) { adminUser.pin = '0000'; }
 let folders = JSON.parse(localStorage.getItem('kh_folders')) || [
 { id: 'Bibles', name: 'Bibles', icon: 'fa-book-bible' },
 { id: 'Livres', name: 'Livres', icon: 'fa-book' },
@@ -235,7 +237,7 @@ document.getElementById('currentUserNameDisplay').innerText = user.name;
 document.getElementById('currentUserRoleDisplay').innerText = Niveau ${user.role} (${user.role == 4 ? 'Admin' : user.role == 3 ? 'Gestionnaire' : user.role == 2 ? 'Inventaire' : 'Opérateur'});
 renderContent();
 } else {
-errorMsg.innerText = "Code PIN incorrect.";
+errorMsg.innerText = "Code PIN incorrect (Essayez 0000 pour l'Admin).";
 errorMsg.style.display = 'block';
 }
 }
@@ -433,8 +435,8 @@ printWindow.document.write(htmlContent);
 printWindow.document.close();
 closeInventoryModal();
 }
-populateLockScreenUsers();
 window.onload = init;
 </script>
 </body>
 </html>
+
