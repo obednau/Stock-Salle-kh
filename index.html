@@ -11,7 +11,6 @@
 .neon-qty { color: #39FF14; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); font-weight: 900; }
 body { background-color: #0f172a; color: #f8fafc; }
 select option { background-color: #1e293b; color: #f8fafc; }
-/* Style absolu pour l'écran de verrouillage en plein écran opaque */
 #lockScreen {
 position: fixed;
 inset: 0;
@@ -27,7 +26,7 @@ padding: 1rem;
 <body class="min-h-screen flex flex-col font-sans">
 <!-- Écran de verrouillage -->
 <div id="lockScreen">
-<div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
+<div style="background-color: #1e293b; border: 1px solid #334155;" class="rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl text-center">
 <div class="w-16 h-16 bg-emerald-600/25 border border-emerald-500/50 rounded-2xl mx-auto flex items-center justify-center text-emerald-400 text-2xl">
 <i class="fa-solid fa-lock"></i>
 </div>
@@ -58,7 +57,7 @@ Se connecter
 <div class="bg-emerald-600 p-2.5 rounded-xl text-white shadow-lg"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
 <div>
 <h1 class="text-xl font-bold tracking-wide text-white">Stock Salle KH</h1>
-<p class="text-xs text-slate-400">Gestionnaire v1.9.9</p>
+<p class="text-xs text-slate-400">Gestionnaire v2.0.0</p>
 </div>
 </div>
 <div class="flex-1 max-w-md w-full flex gap-2">
@@ -246,7 +245,9 @@ document.getElementById('lockScreen').style.display = 'flex';
 }
 function populateLockScreenUsers() {
 const select = document.getElementById('lockUserSelect');
+if (select) {
 select.innerHTML = appUsers.map(u => <option value="${u.id}">${u.name} [Niveau ${u.role}]</option>).join('');
+}
 }
 function attemptLogin() {
 const selectedId = document.getElementById('lockUserSelect').value;
@@ -275,6 +276,7 @@ document.getElementById('lockScreen').style.display = 'flex';
 function getUser() { return appUsers.find(u => u.id === activeUserId) || appUsers[0]; }
 function renderContent() {
 const container = document.getElementById('mainContent');
+if (!container) return;
 const user = getUser();
 const roleNum = parseInt(user.role);
 const search = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -459,7 +461,7 @@ printWindow.document.write(htmlContent);
 printWindow.document.close();
 closeInventoryModal();
 }
-window.onload = init;
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
