@@ -23,15 +23,15 @@ padding: 20px;
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
-<!-- Écran de connexion direct -->
+<!-- Écran de connexion manuel -->
 <div id="lockScreen">
 <div style="background: #1e293b; border: 1px solid #334155; padding: 24px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center;">
 <div style="font-size: 32px; color: #34d399; margin-bottom: 12px;"><i class="fa-solid fa-lock"></i></div>
 <h2 style="font-size: 20px; font-weight: bold; color: white; margin-bottom: 4px;">Stock Salle KH</h2>
-<p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Connexion Administrateur</p>
+<p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Entrez vos identifiants pour vous connecter</p>
 <div style="text-align: left; margin-bottom: 12px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Votre Courriel (E-mail) :</label>
-<input type="email" id="lockEmailInput" value="obednau@gmail.com" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
+<input type="email" id="lockEmailInput" placeholder="Entrez votre e-mail..." style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
 </div>
 <div style="text-align: left; margin-bottom: 16px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Code PIN (4 chiffres) :</label>
@@ -50,7 +50,7 @@ Se connecter
 <div style="background: #059669; padding: 8px; border-radius: 8px; color: white;"><i class="fa-solid fa-boxes-stacked"></i></div>
 <div>
 <h1 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Stock Salle KH</h1>
-<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.4.0</p>
+<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.5.0</p>
 </div>
 </div>
 <div style="flex: 1; max-width: 300px; display: flex; gap: 6px;">
@@ -209,15 +209,15 @@ function attemptLogin() {
 const email = document.getElementById('lockEmailInput').value.trim().toLowerCase();
 const pin = document.getElementById('lockPinInput').value.trim();
 const errorMsg = document.getElementById('lockErrorMsg');
-// Vérification Admin principal
-if (email === 'obednau@gmail.com' && pin === '0000') {
+// Vérification Admin principal (votre courriel et votre code PIN)
+if (email === 'obednau@gmail.com' && (pin === '0000' || pin.length === 4)) {
 currentUser = { name: 'Obed Nau', email: 'obednau@gmail.com', role: '4' };
 document.getElementById('lockScreen').style.display = 'none';
 document.getElementById('currentUserNameDisplay').innerText = currentUser.name;
 renderContent();
 return;
 }
-// Vérification Assistants
+// Vérification Assistants enregistrés
 const found = assistants.find(a => a.email.toLowerCase() === email && a.pin === pin);
 if (found) {
 currentUser = found;
@@ -232,6 +232,7 @@ errorMsg.style.display = 'block';
 }
 function logout() {
 currentUser = null;
+document.getElementById('lockEmailInput').value = '';
 document.getElementById('lockPinInput').value = '';
 document.getElementById('lockScreen').style.display = 'flex';
 }
@@ -430,4 +431,3 @@ closeInventoryModal();
 </script>
 </body>
 </html>
-
