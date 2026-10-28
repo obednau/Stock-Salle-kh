@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -22,7 +23,7 @@ padding: 20px;
 </style>
 </head>
 <body class="min-h-screen flex flex-col">
-<!-- Écran de verrouillage Administrateur unique -->
+<!-- Écran de connexion direct -->
 <div id="lockScreen">
 <div style="background: #1e293b; border: 1px solid #334155; padding: 24px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center;">
 <div style="font-size: 32px; color: #34d399; margin-bottom: 12px;"><i class="fa-solid fa-lock"></i></div>
@@ -30,7 +31,7 @@ padding: 20px;
 <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Connexion Administrateur</p>
 <div style="text-align: left; margin-bottom: 12px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Votre Courriel (E-mail) :</label>
-<input type="email" id="lockEmailInput" value="obednau@gmail.com" placeholder="obednau@gmail.com" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
+<input type="email" id="lockEmailInput" value="obednau@gmail.com" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
 </div>
 <div style="text-align: left; margin-bottom: 16px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Code PIN (4 chiffres) :</label>
@@ -38,9 +39,6 @@ padding: 20px;
 </div>
 <button onclick="attemptLogin()" style="width: 100%; background: #059669; color: white; font-weight: bold; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; margin-bottom: 8px;">
 Se connecter
-</button>
-<button onclick="forceResetApp()" style="width: 100%; background: transparent; color: #94a3b8; border: 1px dashed #475569; padding: 6px; border-radius: 8px; font-size: 11px; cursor: pointer;">
-🔄 Réinitialiser les accès
 </button>
 <p id="lockErrorMsg" style="font-size: 12px; color: #f87171; margin-top: 10px; display: none;"></p>
 </div>
@@ -52,7 +50,7 @@ Se connecter
 <div style="background: #059669; padding: 8px; border-radius: 8px; color: white;"><i class="fa-solid fa-boxes-stacked"></i></div>
 <div>
 <h1 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Stock Salle KH</h1>
-<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.3.1</p>
+<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.4.0</p>
 </div>
 </div>
 <div style="flex: 1; max-width: 300px; display: flex; gap: 6px;">
@@ -62,7 +60,7 @@ Se connecter
 <div style="display: flex; align-items: center; gap: 8px; background: #0f172a; padding: 6px 10px; border-radius: 8px; border: 1px solid #334155;">
 <div style="text-align: right;">
 <span id="currentUserNameDisplay" style="font-size: 11px; font-weight: bold; display: block; color: white;"></span>
-<span id="currentUserRoleDisplay" style="font-size: 9px; color: #34d399; display: block;"></span>
+<span id="currentUserRoleDisplay" style="font-size: 9px; color: #34d399; display: block;">Administrateur</span>
 </div>
 <button onclick="logout()" style="background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;"><i class="fa-solid fa-right-from-bracket"></i> Verrouiller</button>
 </div>
@@ -76,8 +74,8 @@ Se connecter
 <span id="breadcrumbFolder"></span>
 </div>
 <div style="display: flex; gap: 6px;">
-<button id="btnInventory" onclick="openInventoryModal()" style="display: none; background: #334155; color: white; border: 1px solid #475569; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-file-pdf" style="color: #f87171;"></i> Inventaire (PDF)</button>
-<button id="btnAdminProfiles" onclick="openAdminUsersModal()" style="display: none; background: #581c87; color: #e9d5ff; border: 1px solid #7e22ce; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-users-gear"></i> Admin (Gérer Équipe)</button>
+<button onclick="openInventoryModal()" style="background: #334155; color: white; border: 1px solid #475569; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-file-pdf" style="color: #f87171;"></i> Inventaire (PDF)</button>
+<button onclick="openAdminUsersModal()" style="background: #581c87; color: #e9d5ff; border: 1px solid #7e22ce; padding: 6px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-users-gear"></i> Gérer Assistants</button>
 </div>
 </div>
 <div id="mainContent"></div>
@@ -140,26 +138,25 @@ Se connecter
 </div>
 </div>
 </div>
-<!-- Modale de Gestion des Utilisateurs -->
+<!-- Modale de Gestion des Assistants -->
 <div id="adminUsersModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
 <div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid #334155; max-height: 90vh; overflow-y: auto;">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-<h3 style="font-size: 16px; font-weight: bold; color: white;">Gérer les Assistants & Équipe</h3>
+<h3 style="font-size: 16px; font-weight: bold; color: white;">Gérer les Assistants</h3>
 <button onclick="closeAdminUsersModal()" style="background: none; border: none; color: #94a3b8; cursor: pointer;"><i class="fa-solid fa-xmark text-lg"></i></button>
 </div>
-<p style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;">Créez et gérez les accès de vos assistants ci-dessous.</p>
+<p style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;">Créez les accès de vos assistants ci-dessous.</p>
 <div id="usersListContainer" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;"></div>
 <div style="border-top: 1px solid #334155; padding-top: 12px;">
-<h4 style="font-size: 13px; font-weight: bold; color: #34d399; margin-bottom: 8px;"><i class="fa-solid fa-user-plus"></i> Ajouter un nouvel assistant</h4>
+<h4 style="font-size: 13px; font-weight: bold; color: #34d399; margin-bottom: 8px;"><i class="fa-solid fa-user-plus"></i> Ajouter un assistant</h4>
 <div style="display: flex; flex-direction: column; gap: 8px;">
 <input type="text" id="newUserName" placeholder="Nom et Prénom" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
 <input type="email" id="newUserEmail" placeholder="Courriel (E-mail)" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
 <input type="text" id="newUserPin" maxlength="4" placeholder="Code PIN (4 chiffres)" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
 <select id="newUserRole" style="background: #0f172a; border: 1px solid #475569; color: white; padding: 8px; border-radius: 8px; font-size: 13px;">
-<option value="1">Niveau 1 : Modifier quantités (Assistant de base)</option>
+<option value="1">Niveau 1 : Modifier quantités</option>
 <option value="2">Niveau 2 : Niveau 1 + Inventaire PDF</option>
 <option value="3">Niveau 3 : Niveau 2 + Ajout/Retrait Pubs & Codes</option>
-<option value="4">Niveau 4 : Administrateur (Tous droits)</option>
 </select>
 <button onclick="addNewUser()" style="background: #7c3aed; color: white; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Créer ce profil</button>
 </div>
@@ -183,21 +180,7 @@ Se connecter
 </div>
 <!-- Script JavaScript -->
 <script>
-const defaultAdmin = [
-{ id: 'admin-obed', name: 'Obed Nau (Admin)', email: 'obednau@gmail.com', role: '4', pin: '0000' }
-];
-let appUsers = defaultAdmin;
-try {
-let savedUsers = JSON.parse(localStorage.getItem('kh_users'));
-if (savedUsers && Array.isArray(savedUsers) && savedUsers.length > 0) {
-appUsers = savedUsers;
-if (!appUsers.some(u => u.email.toLowerCase() === 'obednau@gmail.com')) {
-appUsers.unshift(defaultAdmin[0]);
-}
-}
-} catch(e) {
-appUsers = defaultAdmin;
-}
+let assistants = JSON.parse(localStorage.getItem('kh_assistants')) || [];
 let folders = JSON.parse(localStorage.getItem('kh_folders')) || [
 { id: 'Bibles', name: 'Bibles', icon: 'fa-book-bible' },
 { id: 'Livres', name: 'Livres', icon: 'fa-book' },
@@ -213,100 +196,88 @@ let publications = JSON.parse(localStorage.getItem('kh_pubs')) || [
 { id: 'PUB-005', folder: 'Tracts', title: 'Où trouver les réponses aux grandes questions ?', s28: 'T-37-F', qty: 350, code: '' }
 ];
 function saveData() {
-localStorage.setItem('kh_users', JSON.stringify(appUsers));
+localStorage.setItem('kh_assistants', JSON.stringify(assistants));
 localStorage.setItem('kh_folders', JSON.stringify(folders));
 localStorage.setItem('kh_pubs', JSON.stringify(publications));
 }
-function forceResetApp() {
-if(confirm("Réinitialiser l'accès administrateur à obednau@gmail.com (PIN: 0000) ?")) {
-localStorage.removeItem('kh_users');
-location.reload();
-}
-}
-let activeUserId = null;
+let currentUser = null;
 let activeFolder = 'OVERVIEW';
 let selectedPubId = null;
 let html5QrCode = null;
 let targetFieldForScan = null;
-function init() {
-saveData();
-document.getElementById('lockScreen').style.display = 'flex';
-}
 function attemptLogin() {
-const emailInput = document.getElementById('lockEmailInput').value.trim().toLowerCase();
-const enteredPin = document.getElementById('lockPinInput').value.trim();
+const email = document.getElementById('lockEmailInput').value.trim().toLowerCase();
+const pin = document.getElementById('lockPinInput').value.trim();
 const errorMsg = document.getElementById('lockErrorMsg');
-// Recherche par e-mail ou par défaut l'admin principal si l'e-mail correspond à obednau
-let user = appUsers.find(u => u.email.toLowerCase() === emailInput);
-if (!user && (emailInput === '' || emailInput === 'obednau@gmail.com')) {
-user = appUsers.find(u => u.email.toLowerCase() === 'obednau@gmail.com');
-}
-if (user && user.pin === enteredPin) {
-activeUserId = user.id;
-document.getElementById('lockPinInput').value = '';
-errorMsg.style.display = 'none';
+// Vérification Admin principal
+if (email === 'obednau@gmail.com' && pin === '0000') {
+currentUser = { name: 'Obed Nau', email: 'obednau@gmail.com', role: '4' };
 document.getElementById('lockScreen').style.display = 'none';
-document.getElementById('currentUserNameDisplay').innerText = user.name;
-document.getElementById('currentUserRoleDisplay').innerText = ⁠Niveau ${user.role} (${user.role == 4 ? 'Admin' : user.role == 3 ? 'Gestionnaire' : user.role == 2 ? 'Inventaire' : 'Opérateur'})⁠;
+document.getElementById('currentUserNameDisplay').innerText = currentUser.name;
 renderContent();
-} else {
-errorMsg.innerText = "Courriel ou code PIN incorrect (Rappel Admin: obednau@gmail.com / 0000).";
+return;
+}
+// Vérification Assistants
+const found = assistants.find(a => a.email.toLowerCase() === email && a.pin === pin);
+if (found) {
+currentUser = found;
+document.getElementById('lockScreen').style.display = 'none';
+document.getElementById('currentUserNameDisplay').innerText = currentUser.name;
+document.getElementById('currentUserRoleDisplay').innerText = Niveau ${currentUser.role};
+renderContent();
+return;
+}
+errorMsg.innerText = "Courriel ou code PIN incorrect.";
 errorMsg.style.display = 'block';
 }
-}
 function logout() {
-activeUserId = null;
+currentUser = null;
 document.getElementById('lockPinInput').value = '';
 document.getElementById('lockScreen').style.display = 'flex';
 }
-function getUser() { return appUsers.find(u => u.id === activeUserId) || appUsers[0]; }
 function renderContent() {
 const container = document.getElementById('mainContent');
 if (!container) return;
-const user = getUser();
-const roleNum = parseInt(user.role);
+const roleNum = parseInt(currentUser.role);
 const search = document.getElementById('searchInput').value.trim().toLowerCase();
-document.getElementById('breadcrumbFolder').innerHTML = activeFolder !== 'OVERVIEW' ? ⁠ / <span style="font-weight: bold; color: #34d399;">${activeFolder}</span>⁠ : '';
-document.getElementById('btnInventory').style.display = roleNum >= 2 ? 'block' : 'none';
-document.getElementById('btnAdminProfiles').style.display = roleNum >= 4 ? 'block' : 'none';
+document.getElementById('breadcrumbFolder').innerHTML = activeFolder !== 'OVERVIEW' ?  / <span style="font-weight: bold; color: #34d399;">${activeFolder}</span> : '';
 if (activeFolder !== 'OVERVIEW') { renderFolderView(container, search); return; }
 if (search !== '') {
 const results = publications.filter(p => p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search));
-let html = ⁠<div style="display: flex; flex-direction: column; gap: 10px;"><h2 style="font-size: 16px; font-weight: bold; color: white;">Résultats (${results.length})</h2><div style="display: flex; flex-direction: column; gap: 8px;">⁠;
-if(results.length === 0) html += ⁠<div style="text-align: center; color: #64748b; padding: 20px;">Aucun article trouvé.</div>⁠;
+let html = <div style="display: flex; flex-direction: column; gap: 10px;"><h2 style="font-size: 16px; font-weight: bold; color: white;">Résultats (${results.length})</h2><div style="display: flex; flex-direction: column; gap: 8px;">;
+if(results.length === 0) html += <div style="text-align: center; color: #64748b; padding: 20px;">Aucun article trouvé.</div>;
 results.forEach(p => {
-html += ⁠<div style="background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px;"> <div style="flex: 1;"><span style="font-size: 10px; color: #34d399; background: #022c22; padding: 2px 6px; border-radius: 4px; border: 1px solid #065f46;">${p.folder}</span><h4 style="font-weight: bold; color: white; margin: 4px 0 0 0; font-size: 14px;">${p.title}</h4></div> <div style="display: flex; align-items: center; gap: 8px;"> <button onclick="adjust('${p.id}', -1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">-</button> <div onclick="openQtyModal('${p.id}')" style="background: #020617; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; cursor: pointer;"><span class="neon-qty" style="font-size: 16px;">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">+</button> </div> </div>⁠;
+html += <div style="background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px;"> <div style="flex: 1;"><span style="font-size: 10px; color: #34d399; background: #022c22; padding: 2px 6px; border-radius: 4px; border: 1px solid #065f46;">${p.folder}</span><h4 style="font-weight: bold; color: white; margin: 4px 0 0 0; font-size: 14px;">${p.title}</h4></div> <div style="display: flex; align-items: center; gap: 8px;"> <button onclick="adjust('${p.id}', -1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">-</button> <div onclick="openQtyModal('${p.id}')" style="background: #020617; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; cursor: pointer;"><span class="neon-qty" style="font-size: 16px;">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">+</button> </div> </div>;
 });
-html += ⁠</div></div>⁠;
+html += </div></div>;
 container.innerHTML = html;
 return;
 }
-let html = ⁠<div style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; justify-content: space-between; align-items: center;"><h2 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Catégories de Stock</h2>⁠;
+let html = <div style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; justify-content: space-between; align-items: center;"><h2 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Catégories de Stock</h2>;
 if (roleNum >= 3) {
-html += ⁠<div style="display: flex; gap: 6px;"> <button onclick="openAddFolderModal()" style="background: #334155; color: #34d399; border: 1px solid #475569; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-folder-plus"></i> Cat.</button> <button onclick="openAddPubModal()" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-plus"></i> Pub</button> </div>⁠;
+html += <div style="display: flex; gap: 6px;"> <button onclick="openAddFolderModal()" style="background: #334155; color: #34d399; border: 1px solid #475569; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-folder-plus"></i> Cat.</button> <button onclick="openAddPubModal()" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-plus"></i> Pub</button> </div>;
 }
-html += ⁠</div><div style="display: grid; grid-template-columns: 1fr; gap: 10px;">⁠;
+html += </div><div style="display: grid; grid-template-columns: 1fr; gap: 10px;">;
 folders.forEach(f => {
 const count = publications.filter(p => p.folder === f.id).length;
 const total = publications.filter(p => p.folder === f.id).reduce((s, p) => s + p.qty, 0);
-html += ⁠<div style="background: #1e293b; border: 1px solid #334155; padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;"> <div onclick="openFolder('${f.id}')" style="display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1;"> <div style="width: 36px; height: 36px; background: #0f172a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 16px;"><i class="fa-solid ${f.icon}"></i></div> <div><h3 style="font-weight: bold; color: white; margin: 0; font-size: 15px;">${f.name}</h3><p style="font-size: 11px; color: #94a3b8; margin: 0;">${count} article(s)</p></div> </div> <div style="display: flex; align-items: center; gap: 10px;"> <div onclick="openFolder('${f.id}')" style="text-align: right; cursor: pointer;"><span class="neon-qty" style="font-size: 16px; display: block;">${total}</span><span style="font-size: 8px; color: #64748b; text-transform: uppercase;">Stock</span></div> ${roleNum >= 3 ? ⁠<button onclick="deleteFolder('${f.id}')" title="Supprimer" style="background: none; border: none; color: #f87171; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash-can"></i></button>⁠ : ''} </div> </div>⁠;
+html += <div style="background: #1e293b; border: 1px solid #334155; padding: 14px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;"> <div onclick="openFolder('${f.id}')" style="display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1;"> <div style="width: 36px; height: 36px; background: #0f172a; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 16px;"><i class="fa-solid ${f.icon}"></i></div> <div><h3 style="font-weight: bold; color: white; margin: 0; font-size: 15px;">${f.name}</h3><p style="font-size: 11px; color: #94a3b8; margin: 0;">${count} article(s)</p></div> </div> <div style="display: flex; align-items: center; gap: 10px;"> <div onclick="openFolder('${f.id}')" style="text-align: right; cursor: pointer;"><span class="neon-qty" style="font-size: 16px; display: block;">${total}</span><span style="font-size: 8px; color: #64748b; text-transform: uppercase;">Stock</span></div> ${roleNum >= 3 ? <button onclick="deleteFolder('${f.id}')" title="Supprimer" style="background: none; border: none; color: #f87171; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash-can"></i></button> : ''} </div> </div>;
 });
-html += ⁠</div></div>⁠;
+html += </div></div>;
 container.innerHTML = html;
 }
 function openFolder(f) { activeFolder = f; document.getElementById('searchInput').value = ''; renderContent(); }
 function renderFolderView(container, search) {
-const user = getUser();
-const roleNum = parseInt(user.role);
+const roleNum = parseInt(currentUser.role);
 const list = publications.filter(p => p.folder === activeFolder && (search === '' || p.title.toLowerCase().includes(search) || p.s28.toLowerCase().includes(search) || p.code.toLowerCase().includes(search)));
-let html = ⁠<div style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155;"> <button onclick="openFolder('OVERVIEW')" style="background: #334155; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Retour</button> <h2 style="font-size: 15px; font-weight: bold; color: #34d399; margin: 0;">${activeFolder}</h2>⁠;
-if (roleNum >= 3) html += ⁠<button onclick="openAddPubModal('${activeFolder}')" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-plus"></i> Ajouter</button>⁠;
-html += ⁠</div><div style="display: flex; flex-direction: column; gap: 8px;">⁠;
-if (list.length === 0) html += ⁠<div style="text-align: center; color: #64748b; padding: 20px;">Aucun article trouvé.</div>⁠;
+let html = <div style="display: flex; flex-direction: column; gap: 12px;"><div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 12px; border-radius: 12px; border: 1px solid #334155;"> <button onclick="openFolder('OVERVIEW')" style="background: #334155; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-arrow-left"></i> Retour</button> <h2 style="font-size: 15px; font-weight: bold; color: #34d399; margin: 0;">${activeFolder}</h2>;
+if (roleNum >= 3) html += <button onclick="openAddPubModal('${activeFolder}')" style="background: #059669; color: white; border: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;"><i class="fa-solid fa-plus"></i> Ajouter</button>;
+html += </div><div style="display: flex; flex-direction: column; gap: 8px;">;
+if (list.length === 0) html += <div style="text-align: center; color: #64748b; padding: 20px;">Aucun article trouvé.</div>;
 list.forEach(p => {
-html += ⁠<div style="background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;"> <div style="flex: 1;"> <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;"> <span style="font-size: 10px; color: #34d399; background: #022c22; padding: 2px 6px; border-radius: 4px; border: 1px solid #065f46;">S-28: ${p.s28}</span> ${roleNum >= 3 ? ⁠<button onclick="openCodeModal('${p.id}')" style="font-size: 10px; background: #0f172a; color: #cbd5e1; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-barcode" style="color: #34d399;"></i> ${p.code ? p.code : '+ Code'}</button>⁠: (p.code ?⁠<span style="font-size: 10px; color: #94a3b8;"><i class="fa-solid fa-barcode"></i> ${p.code}</span>⁠: '')} </div> <h4 style="font-weight: bold; color: white; margin: 0; font-size: 14px;">${p.title}</h4> </div> <div style="display: flex; align-items: center; gap: 8px;"> <button onclick="adjust('${p.id}', -1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">-</button> <div onclick="openQtyModal('${p.id}')" style="background: #020617; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; cursor: pointer;"><span class="neon-qty" style="font-size: 16px;">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">+</button> ${roleNum >= 3 ?⁠<button onclick="deletePub('${p.id}')" style="background: none; border: none; color: #f87171; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button>⁠ : ''} </div> </div>⁠;
+html += <div style="background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px;"> <div style="flex: 1;"> <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;"> <span style="font-size: 10px; color: #34d399; background: #022c22; padding: 2px 6px; border-radius: 4px; border: 1px solid #065f46;">S-28: ${p.s28}</span> ${roleNum >= 3 ? <button onclick="openCodeModal('${p.id}')" style="font-size: 10px; background: #0f172a; color: #cbd5e1; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px; cursor: pointer;"><i class="fa-solid fa-barcode" style="color: #34d399;"></i> ${p.code ? p.code : '+ Code'}</button>: (p.code ?<span style="font-size: 10px; color: #94a3b8;"><i class="fa-solid fa-barcode"></i> ${p.code}</span>: '')} </div> <h4 style="font-weight: bold; color: white; margin: 0; font-size: 14px;">${p.title}</h4> </div> <div style="display: flex; align-items: center; gap: 8px;"> <button onclick="adjust('${p.id}', -1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">-</button> <div onclick="openQtyModal('${p.id}')" style="background: #020617; padding: 6px 12px; border-radius: 8px; border: 1px solid #334155; text-align: center; cursor: pointer;"><span class="neon-qty" style="font-size: 16px;">${p.qty}</span></div> <button onclick="adjust('${p.id}', 1)" style="width: 32px; height: 32px; background: #334155; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">+</button> ${roleNum >= 3 ?<button onclick="deletePub('${p.id}')" style="background: none; border: none; color: #f87171; padding: 6px; cursor: pointer;"><i class="fa-solid fa-trash"></i></button> : ''} </div> </div>;
 });
-html += ⁠</div></div>⁠;
+html += </div></div>;
 container.innerHTML = html;
 }
 function adjust(id, delta) {
@@ -358,7 +329,7 @@ closeScanner();
 if (targetField === 'field' && selectedPubId) { document.getElementById('inputAssignedCode').value = codeText; openCodeModal(selectedPubId); targetField = null; return; }
 const matches = publications.filter(p => p.code.toLowerCase() === codeText.toLowerCase());
 if (matches.length > 0) { activeFolder = matches[0].folder; document.getElementById('searchInput').value = codeText; renderContent(); }
-else { alert(⁠Code scanné inconnu : "${codeText}"⁠); document.getElementById('searchInput').value = codeText; renderContent(); }
+else { alert(Code scanné inconnu : "${codeText}"); document.getElementById('searchInput').value = codeText; renderContent(); }
 }
 function openAddFolderModal() { document.getElementById('newFolderNameInput').value = ''; document.getElementById('addFolderModal').style.display = 'flex'; }
 function closeAddFolderModal() { document.getElementById('addFolderModal').style.display = 'none'; }
@@ -392,7 +363,7 @@ renderContent();
 function openAdminUsersModal() { renderAdminUsersList(); document.getElementById('adminUsersModal').style.display = 'flex'; }
 function closeAdminUsersModal() { document.getElementById('adminUsersModal').style.display = 'none'; }
 function renderAdminUsersList() {
-document.getElementById('usersListContainer').innerHTML = appUsers.map(u => ⁠<div style="background: #0f172a; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;"> <div> <h4 style="font-weight: bold; color: white; font-size: 13px; margin: 0;">${u.name} ${u.email === 'obednau@gmail.com' ? '👑' : ''}</h4> <span style="font-size: 11px; color: #a78bfa;">${u.email} | PIN: ${u.pin} | Niv.${u.role}</span> </div> ${u.email !== 'obednau@gmail.com' ?⁠<button onclick="deleteUser('${u.id}')" style="background: #7f1d1d; color: #fca5a5; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;"><i class="fa-solid fa-trash"></i> Retirer</button>⁠: '<span style="font-size: 10px; color: #34d399;">Propriétaire</span>'} </div>⁠).join('');
+document.getElementById('usersListContainer').innerHTML = assistants.length === 0 ? '<div style="color: #64748b; font-size: 12px; text-align: center;">Aucun assistant créé pour le moment.</div>' : assistants.map(a => <div style="background: #0f172a; padding: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #334155;"> <div> <h4 style="font-weight: bold; color: white; font-size: 13px; margin: 0;">${a.name}</h4> <span style="font-size: 11px; color: #a78bfa;">${a.email} | PIN: ${a.pin} | Niv.${a.role}</span> </div> <button onclick="deleteAssistant('${a.id}')" style="background: #7f1d1d; color: #fca5a5; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;"><i class="fa-solid fa-trash"></i> Retirer</button> </div>).join('');
 }
 function addNewUser() {
 const name = document.getElementById('newUserName').value.trim();
@@ -403,25 +374,25 @@ if(!name || !email || pin.length !== 4) {
 alert("Veuillez remplir le nom, un e-mail valide et un code PIN à 4 chiffres.");
 return;
 }
-if(appUsers.some(u => u.email.toLowerCase() === email)) {
-alert("Cet e-mail est déjà utilisé par un autre profil.");
+if(email === 'obednau@gmail.com' || assistants.some(a => a.email.toLowerCase() === email)) {
+alert("Cet e-mail est déjà utilisé.");
 return;
 }
-appUsers.push({ id: 'u-' + Date.now(), name: name, email: email, role: role, pin: pin });
+assistants.push({ id: 'ast-' + Date.now(), name: name, email: email, pin: pin, role: role });
 saveData();
 document.getElementById('newUserName').value = '';
 document.getElementById('newUserEmail').value = '';
 document.getElementById('newUserPin').value = '';
 renderAdminUsersList();
 }
-function deleteUser(id) {
-appUsers = appUsers.filter(u => u.id !== id);
+function deleteAssistant(id) {
+assistants = assistants.filter(a => a.id !== id);
 saveData();
 renderAdminUsersList();
 }
 function openAddPubModal(f = '') {
 const select = document.getElementById('newPubFolder');
-select.innerHTML = folders.map(folder => ⁠<option value="${folder.id}" ${folder.id === f ? 'selected' : ''}>${folder.name}</option>⁠).join('');
+select.innerHTML = folders.map(folder => <option value="${folder.id}" ${folder.id === f ? 'selected' : ''}>${folder.name}</option>).join('');
 document.getElementById('addPubModal').style.display = 'flex';
 }
 function closeAddPubModal() { document.getElementById('addPubModal').style.display = 'none'; }
@@ -445,18 +416,18 @@ function generateInventoryPDF() {
 const start = document.getElementById('invDateStart').value;
 const end = document.getElementById('invDateEnd').value;
 let printWindow = window.open('', '_blank');
-let htmlContent = ⁠<html> <head> <title>Bilan Inventaire - Stock Salle KH</title> <style> body { font-family: Arial, sans-serif; padding: 20px; color: #000; } h2 { text-align: center; color: #1e293b; } .meta { text-align: center; margin-bottom: 20px; font-size: 12px; color: #64748b; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; font-size: 14px; } th { background-color: #f1f5f9; } .total { text-align: right; margin-top: 20px; font-weight: bold; font-size: 16px; } </style> </head> <body> <h2>SALLE DU ROYAUME - BILAN D'INVENTAIRE</h2> <div class="meta">Période du ${start} au ${end}</div> <table> <tr><th>Catégorie</th><th>Code S-28</th><th>Titre de la Publication</th><th>Quantité</th></tr>⁠;
+let htmlContent = <html> <head> <title>Bilan Inventaire - Stock Salle KH</title> <style> body { font-family: Arial, sans-serif; padding: 20px; color: #000; } h2 { text-align: center; color: #1e293b; } .meta { text-align: center; margin-bottom: 20px; font-size: 12px; color: #64748b; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; font-size: 14px; } th { background-color: #f1f5f9; } .total { text-align: right; margin-top: 20px; font-weight: bold; font-size: 16px; } </style> </head> <body> <h2>SALLE DU ROYAUME - BILAN D'INVENTAIRE</h2> <div class="meta">Période du ${start} au ${end}</div> <table> <tr><th>Catégorie</th><th>Code S-28</th><th>Titre de la Publication</th><th>Quantité</th></tr>;
 let totalQty = 0;
 publications.forEach(p => {
 totalQty += p.qty;
-htmlContent += ⁠<tr><td>${p.folder}</td><td>${p.s28}</td><td>${p.title}</td><td><b>${p.qty}</b></td></tr>⁠;
+htmlContent += <tr><td>${p.folder}</td><td>${p.s28}</td><td>${p.title}</td><td><b>${p.qty}</b></td></tr>;
 });
-htmlContent += ⁠</table> <div class="total">Total général en stock : ${totalQty} articles</div> <script>window.onload = function() { window.print(); }<\/script> </body> </html>⁠;
+htmlContent += </table> <div class="total">Total général en stock : ${totalQty} articles</div> <script>window.onload = function() { window.print(); }<\/script> </body> </html>;
 printWindow.document.write(htmlContent);
 printWindow.document.close();
 closeInventoryModal();
 }
-window.onload = init;
 </script>
 </body>
 </html>
+
