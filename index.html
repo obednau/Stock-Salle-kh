@@ -27,10 +27,10 @@ padding: 20px;
 <div style="background: #1e293b; border: 1px solid #334155; padding: 24px; border-radius: 16px; width: 100%; max-width: 360px; text-align: center;">
 <div style="font-size: 32px; color: #34d399; margin-bottom: 12px;"><i class="fa-solid fa-lock"></i></div>
 <h2 style="font-size: 20px; font-weight: bold; color: white; margin-bottom: 4px;">Stock Salle KH</h2>
-<p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Connexion sécurisée par e-mail et code PIN</p>
+<p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Connexion Administrateur</p>
 <div style="text-align: left; margin-bottom: 12px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Votre Courriel (E-mail) :</label>
-<input type="email" id="lockEmailInput" placeholder="obednau@gmail.com" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
+<input type="email" id="lockEmailInput" value="obednau@gmail.com" placeholder="obednau@gmail.com" style="width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; font-size: 14px;">
 </div>
 <div style="text-align: left; margin-bottom: 16px;">
 <label style="font-size: 12px; color: #94a3b8; display: block; margin-bottom: 4px;">Code PIN (4 chiffres) :</label>
@@ -40,16 +40,9 @@ padding: 20px;
 Se connecter
 </button>
 <button onclick="forceResetApp()" style="width: 100%; background: transparent; color: #94a3b8; border: 1px dashed #475569; padding: 6px; border-radius: 8px; font-size: 11px; cursor: pointer;">
-🔄 Réinitialiser mon accès admin (0000)
+🔄 Réinitialiser les accès
 </button>
 <p id="lockErrorMsg" style="font-size: 12px; color: #f87171; margin-top: 10px; display: none;"></p>
-<div style="margin-top: 15px; font-size: 11px; color: #64748b; border-top: 1px solid #334155; padding-top: 10px; text-align: left;">
-<b>Admin par défaut :</b>
-
-• E-mail : <b>obednau@gmail.com</b>
-
-• PIN par défaut : <b>0000</b> (modifiable ensuite)
-</div>
 </div>
 </div>
 <!-- En-tête -->
@@ -59,7 +52,7 @@ Se connecter
 <div style="background: #059669; padding: 8px; border-radius: 8px; color: white;"><i class="fa-solid fa-boxes-stacked"></i></div>
 <div>
 <h1 style="font-size: 16px; font-weight: bold; color: white; margin: 0;">Stock Salle KH</h1>
-<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.3.0</p>
+<p style="font-size: 11px; color: #94a3b8; margin: 0;">Gestionnaire v2.3.1</p>
 </div>
 </div>
 <div style="flex: 1; max-width: 300px; display: flex; gap: 6px;">
@@ -147,7 +140,7 @@ Se connecter
 </div>
 </div>
 </div>
-<!-- Modale de Gestion des Utilisateurs (Réservée à l'Admin) -->
+<!-- Modale de Gestion des Utilisateurs -->
 <div id="adminUsersModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;">
 <div style="background: #1e293b; padding: 20px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid #334155; max-height: 90vh; overflow-y: auto;">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -190,7 +183,6 @@ Se connecter
 </div>
 <!-- Script JavaScript -->
 <script>
-// Votre profil administrateur unique par défaut
 const defaultAdmin = [
 { id: 'admin-obed', name: 'Obed Nau (Admin)', email: 'obednau@gmail.com', role: '4', pin: '0000' }
 ];
@@ -199,7 +191,6 @@ try {
 let savedUsers = JSON.parse(localStorage.getItem('kh_users'));
 if (savedUsers && Array.isArray(savedUsers) && savedUsers.length > 0) {
 appUsers = savedUsers;
-// S'assurer que votre compte admin existe toujours
 if (!appUsers.some(u => u.email.toLowerCase() === 'obednau@gmail.com')) {
 appUsers.unshift(defaultAdmin[0]);
 }
@@ -245,25 +236,27 @@ function attemptLogin() {
 const emailInput = document.getElementById('lockEmailInput').value.trim().toLowerCase();
 const enteredPin = document.getElementById('lockPinInput').value.trim();
 const errorMsg = document.getElementById('lockErrorMsg');
-const user = appUsers.find(u => u.email.toLowerCase() === emailInput);
+// Recherche par e-mail ou par défaut l'admin principal si l'e-mail correspond à obednau
+let user = appUsers.find(u => u.email.toLowerCase() === emailInput);
+if (!user && (emailInput === '' || emailInput === 'obednau@gmail.com')) {
+user = appUsers.find(u => u.email.toLowerCase() === 'obednau@gmail.com');
+}
 if (user && user.pin === enteredPin) {
 activeUserId = user.id;
 document.getElementById('lockPinInput').value = '';
-document.getElementById('lockEmailInput').value = '';
 errorMsg.style.display = 'none';
 document.getElementById('lockScreen').style.display = 'none';
 document.getElementById('currentUserNameDisplay').innerText = user.name;
 document.getElementById('currentUserRoleDisplay').innerText = ⁠Niveau ${user.role} (${user.role == 4 ? 'Admin' : user.role == 3 ? 'Gestionnaire' : user.role == 2 ? 'Inventaire' : 'Opérateur'})⁠;
 renderContent();
 } else {
-errorMsg.innerText = "Courriel ou code PIN incorrect.";
+errorMsg.innerText = "Courriel ou code PIN incorrect (Rappel Admin: obednau@gmail.com / 0000).";
 errorMsg.style.display = 'block';
 }
 }
 function logout() {
 activeUserId = null;
 document.getElementById('lockPinInput').value = '';
-document.getElementById('lockEmailInput').value = '';
 document.getElementById('lockScreen').style.display = 'flex';
 }
 function getUser() { return appUsers.find(u => u.id === activeUserId) || appUsers[0]; }
